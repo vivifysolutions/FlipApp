@@ -1,0 +1,34 @@
+version: '3.8'
+services:
+  dev-db:
+    image: postgres:13
+    ports:
+      - 5434:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: unique_1234!
+      POSTGRES_DB: fliApp
+    networks:
+      - vivify
+
+    volumes:
+      - dev-db-data:/var/lib/postgresql/data
+  test-db:
+    image: postgres:13
+    ports:
+      - 5435:5432
+
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: unique_1234!
+      POSTGRES_DB: fliApp
+    networks:
+      - vivify
+    volumes:
+      - test-db-data:/var/lib/postgresql/data
+networks:
+  vivify:
+
+volumes:
+  dev-db-data:
+  test-db-data:
