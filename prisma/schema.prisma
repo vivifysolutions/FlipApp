@@ -17,21 +17,22 @@ datasource db {
 // end of the snippets 
 
 model User {
-  id          Int     @id @default(autoincrement())
-  firstName   String?
-  lastNamer   String?
-  username    String? @unique
-  email       String  @unique
-  is_email_verified Boolean @default(false)
-  phonenumber Int?
-  is_phone_number_verified Boolean @default(false)
-  location    String?
-  password    String?
-  createdAt DateTime @default(now())
-  updatedAt  DateTime? @updatedAt
-  role        Role    @default(USER)
-  otp Otp?
+  id                       Int       @id @default(autoincrement())
+  firstName                String?
+  lastName                 String?
+  username                 String?   @unique
+  email                    String    @unique
+  is_email_verified        Boolean   @default(false)
+  phonenumber              Int?
+  is_phone_number_verified Boolean   @default(false)
+  location                 String?
+  password                 String?
+  createdAt                DateTime  @default(now())
+  updatedAt                DateTime? @updatedAt
+  role                     Role      @default(USER)
+  otp                      Otp?
 
+  // 
   @@map("users")
 }
 
@@ -39,14 +40,13 @@ model User {
 enum Role {
   USER
   ADMIN
-} 
+}
 
-
-model Otp{
-  id Int @id @default(autoincrement())
-  otp Int 
-  user User  @relation(fields: [userId], references: [id])
-  userId Int @unique
+model Otp {
+  id     Int  @id @default(autoincrement())
+  otp    Int
+  user   User @relation(fields: [userId], references: [id])
+  userId Int  @unique
 }
 
 // end of schema creation 
