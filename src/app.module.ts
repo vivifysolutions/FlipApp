@@ -7,9 +7,10 @@ import { FacilityModule } from './facility/facility.module';
 import { EventModule } from './event/event.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { ConfigModule } from '@nestjs/config';
+import { UtilitiesModule } from './utilities/utilities.module';
 
 @Module({
-  imports: [ ConfigModule.forRoot({isGlobal:true}) , AuthModule, UserModule, FacilityModule, EventModule, PrismaModule],
+  imports: [ ConfigModule.forRoot({isGlobal:true}) , AuthModule, UserModule, FacilityModule, EventModule, PrismaModule, UtilitiesModule],
   controllers: [AppController],
   providers: [AppService],
 })
