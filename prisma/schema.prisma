@@ -17,20 +17,33 @@ datasource db {
 // end of the snippets 
 
 model User {
-  id                       Int       @id @default(autoincrement())
+  id                       Int            @id @default(autoincrement())
   firstName                String?
   lastName                 String?
-  username                 String?   @unique
-  email                    String    @unique
-  is_email_verified        Boolean   @default(false)
-  phonenumber              Int?
-  is_phone_number_verified Boolean   @default(false)
-  location                 String?
+  username                 String?        @unique
+  email                    String         @unique
+  is_email_verified        Boolean        @default(false)
+  phonenumber              String?
+  is_phone_number_verified Boolean        @default(false)
+  bio                      String?
   password                 String?
-  createdAt                DateTime  @default(now())
-  updatedAt                DateTime? @updatedAt
-  role                     Role      @default(USER)
+  gender                   String?
+  photoUrl                 String?
+  bannerId                 String?
+  isConfigured             Boolean?
+  geohashLocation          String?
+  locationName             String?
+  locationId               Int?
+  connections              Connection[]
+  activities               UserActivity[]
+  events                   Event[]
+  createdAt                DateTime       @default(now())
+  updatedAt                DateTime?      @updatedAt
+  role                     Role           @default(USER)
   otp                      Otp?
+
+  // for me to have userID in the eventattendee table it seems I need to add this field?
+  eventAttendees EventAttendee[]
 
   // 
   @@map("users")
@@ -49,4 +62,82 @@ model Otp {
   userId Int  @unique
 }
 
+model Events {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  location    String
+  date        DateTime
+  startTime   DateTime
+  endTime     DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  userId      Int
+}
+
+model Location {
+  id   Int    @id @default(autoincrement())
+  lat  Float?
+  long Float?
+}
+
+model Connection {
+  id              Int   @id @default(autoincrement())
+  connectedUser   User? @relation(fields: [connectedUserId], references: [id])
+  connectedUserId Int?
+}
+
+model UserActivity {
+  id                     Int       @id @default(autoincrement())
+  skillLevel             SkillLevel @default(Newbie)
+  nature                 String?
+  userActivityActivityId Int?
+  activity               Activity? @relation(fields: [userActivityActivityId], references: [id])
+
+  user   User @relation(fields: [userId], references: [id])
+  userId Int
+}
+
+model Activity {
+  id          Int      @id @default(autoincrement())
+  natures     String[]
+  skillLevels String[]
+
+  // defining the relationship between the activity and the user
+  UserActivity UserActivity[]
+}
+
+model Event {
+  id          Int             @id @default(autoincrement())
+  hostId      String?
+  title       String?
+  description String?
+  status      String?
+  startTime   DateTime?
+  endTime     DateTime?
+  location    String?
+  attendees   EventAttendee[]
+
+  user   User? @relation(fields: [userId], references: [id])
+  userId Int?
+}
+
+model EventAttendee {
+  id     Int     @id @default(autoincrement())
+  status String?
+
+  userId  Int?
+  eventId Int?
+  event   Event? @relation(fields: [eventId], references: [id])
+  user    User?  @relation(fields: [userId], references: [id])
+}
+
 // end of schema creation 
+
+// skill level 
+enum SkillLevel {
+  Advanced_Level 
+  Intermediate_level 
+  Beginner_level 
+  Newbie
+}

@@ -1,14 +1,24 @@
-import { Controller } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
+import { PrismaService } from 'src/prisma/prisma.service';
+import * as argon2 from 'argon2';
+import { LoginDto, RegisterDto } from './dto/registerDto';
+import { register } from 'module';
+
 
 @Controller('auth')
 export class AuthController {
-    constructor(private authService: AuthService){}
+    constructor(private authService: AuthService, private prismaService: PrismaService){}
 
-    signUp(){
+    @Post('signup')
+    signUp(@Body() registerDto: RegisterDto){
+        return this.authService.signUp(registerDto)
     }
 
-    signIn(){}
+    @Post('login')
+    signIn(@Body() loginDto:LoginDto){
+        return this.authService.signIn(loginDto)
+    }
 
     googleLogin(){}
 
