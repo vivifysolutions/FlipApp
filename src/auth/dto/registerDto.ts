@@ -28,4 +28,21 @@ export class LoginDto{
     email?: string;
     @IsString()
     password: string;
+} 
+
+
+export class ForgotPasswordDto {
+  @IsNotEmpty()
+  @IsEmail()
+  email: string;
+
 }
+
+
+export interface verifyPhoneNumber {
+  otp: number;
+  userId: number;
+}
+
+
+ 

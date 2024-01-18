@@ -1,4 +1,22 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Get, Request, UseGuards } from '@nestjs/common';
+import { AuthGuard } from 'src/auth/auth.guard';
+import { UserDto } from './dto/user.dto';
 
 @Controller('user')
-export class UserController {}
+export class UserController {
+
+    constructor(){}
+/**
+ * 
+ * @param req 
+ * @returns user profile information
+ */
+    @UseGuards(AuthGuard)
+    @Get('profile')
+    userProfile(@Request() req){
+        let user:UserDto = req.user;
+        delete user.password;
+        return req.user;
+    }
+
+}

@@ -1,38 +1,23 @@
-import {
-  IsEmail,
-  IsInt,
-  IsString,
-  MaxLength,
-  MinLength,
-} from 'class-validator';
-
-export class UserDto {
-  @IsString()
-  firstName: string;
-  @IsString()
-  lastName: string;
-
-  @MinLength(50, {
-    message: 'Username is too long',
-  })
-  @IsString()
-  username: string;
-
-  @IsEmail()
-  email: string;
-  profilePic: string;
-
-  @MaxLength(15, {
-    message: ' Phone number must not exceed the 15 chahracters',
-  })
-  @IsInt()
-  phoneNumber: number;
-  @IsString()
-  location: string;
-
-  @IsString()
-  password: string;
-
-  @IsString()
-  role: string;
+export interface UserDto {
+  id: number
+  firstName: string
+  lastName: string
+  username: any
+  email: string
+  is_email_verified: boolean
+  phonenumber: string
+  is_phone_number_verified: boolean
+  bio: any
+  password: string
+  gender: any
+  photoUrl: any
+  bannerId: any
+  isConfigured: any
+  geohashLocation: any
+  locationName: any
+  locationId: any
+  createdAt: string
+  updatedAt: string
+  role: string
+  iat: number
 }

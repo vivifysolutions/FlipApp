@@ -1,5 +1,5 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
-import { LoginDto, RegisterDto } from './dto/registerDto';
+import { ForgotPasswordDto, LoginDto, RegisterDto, verifyPhoneNumber } from './dto/registerDto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as argon2 from 'argon2'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
@@ -26,6 +26,15 @@ export class AuthService {
 
                 }
             })
+            // send otp to phone number 
+            const otp = this.utilityService.getOtp()
+            await this.prismaService.otp.create({
+                data: {
+                    otp: otp,
+                    userId: user.id,
+                }
+            })
+            
             delete user.password;
             return this.utilityService.signPayload(user);
         } catch (error) {
@@ -66,7 +75,50 @@ export class AuthService {
 
 
     // forgot password
-    forgotPassword(){}
+    async forgotPassword(forgotPasswordDto: ForgotPasswordDto) {
+        // check if hte user exist 
+        const user = this.prismaService.user.findFirst({
+            where: {
+                email: forgotPasswordDto.email
+            }
+        })
+        if (!user) throw new ForbiddenException("Please recheck your email address");
+    }
+
+    async verifyPhonNumber(otp: number, userId: number){
+        const otpv = await this.prismaService.otp.findFirst({
+            where:{
+                otp: otp, 
+                userId: userId
+            }
+        })
+        if(otpv.otp === otp){
+            return await this.prismaService.user.update({
+                where:{
+                    id: userId,
+                },
+                data:{
+                    is_phone_number_verified:true
+                }
+            })
+        }
+        else{
+            
+            console.log("sdfbdsjfh")
+
+
+            
+        }
+    }
+
+    changePassword() {
+
+
+    }
+
+    // validate otp sent to the phone number 
+    verifyPhoneNumber(){}
+    // end of validating the phone number 
 
     // end of forgot password  funtion 
 }
