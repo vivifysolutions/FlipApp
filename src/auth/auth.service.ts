@@ -55,7 +55,7 @@ export class AuthService {
 
     }
 
-    // user sign  in usin google 
+    // user sign  in using google 
     googleLogin() { }
 
     // user sign in using facebook 
@@ -63,4 +63,10 @@ export class AuthService {
 
     // user signin using twitter => currently X 
     twitter() { }
+
+
+    // forgot password
+    forgotPassword(){}
+
+    // end of forgot password  funtion 
 }
