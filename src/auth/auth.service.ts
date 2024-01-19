@@ -4,11 +4,12 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import * as argon2 from 'argon2'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { UtilitiesService } from 'src/utilities/utilities.service';
+import { MailService } from 'src/mail-service/mail-service.service';
 
 @Injectable()
 export class AuthService {
 
-    constructor(private prismaService: PrismaService, private utilityService: UtilitiesService) { }
+    constructor(private prismaService: PrismaService, private utilityService: UtilitiesService, private emailService:MailService) { }
 
 
     // normal way to register  user 
@@ -28,6 +29,7 @@ export class AuthService {
             })
             // send otp to phone number 
             const otp = this.utilityService.getOtp()
+            await this.emailService.sendMail(otp, user.email, {otp,name:user.firstName}, "otp")
             await this.prismaService.otp.create({
                 data: {
                     otp: otp,
