@@ -1,15 +1,27 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
-import { ForgotPasswordDto, LoginDto, RegisterDto, verifyPhoneNumber } from './dto/registerDto';
+import {
+  ForbiddenException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+} from '@nestjs/common';
+import {
+    ForgotPasswordDto,
+    LoginDto,
+    RegisterDto,
+    verifyPhoneNumber,
+} from './dto/registerDto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as argon2 from 'argon2'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { UtilitiesService } from 'src/utilities/utilities.service';
 import { MailService } from 'src/mail-service/mail-service.service';
+import { TwilioService } from 'src/shared/Twilio/twilio.service';
+import { SmsDto } from 'src/shared/Twilio/dto/sms-dto';
 
 @Injectable()
 export class AuthService {
 
-    constructor(private prismaService: PrismaService, private utilityService: UtilitiesService, private emailService:MailService) { }
+    constructor(private prismaService: PrismaService, private utilityService: UtilitiesService, private emailService: MailService, private smsService: TwilioService) { }
 
 
     // normal way to register  user 
@@ -28,15 +40,21 @@ export class AuthService {
                 }
             })
             // send otp to phone number 
-            const otp = this.utilityService.getOtp()
-            await this.emailService.sendMail(otp, user.email, {otp,name:user.firstName}, "otp")
+            const otpSMS = this.utilityService.getOtp()
+            const otpEmail = this.utilityService.getOtp()
+            const messageBody: SmsDto = {
+                to: user.phonenumber,
+                body: `Hello ${user.firstName} here is the otp ${otpSMS}`
+            }
+            this.smsService.sendTextMessaeg(messageBody)
+            await this.emailService.sendMail(otpEmail, user.email, { otpEmail, name: user.firstName }, "otp")
             await this.prismaService.otp.create({
                 data: {
-                    otp: otp,
+                    otpPhone: otpSMS,
+                    otpEmail: otpEmail,
                     userId: user.id,
                 }
             })
-            
             delete user.password;
             return this.utilityService.signPayload(user);
         } catch (error) {
@@ -78,7 +96,7 @@ export class AuthService {
 
     // forgot password
     async forgotPassword(forgotPasswordDto: ForgotPasswordDto) {
-        // check if hte user exist 
+        // check if the user exist 
         const user = this.prismaService.user.findFirst({
             where: {
                 email: forgotPasswordDto.email
@@ -87,40 +105,68 @@ export class AuthService {
         if (!user) throw new ForbiddenException("Please recheck your email address");
     }
 
-    async verifyPhonNumber(otp: number, userId: number){
+    // function to verify phone number 
+    async verifyPhonNumber(otp: number, userId: number) {
         const otpv = await this.prismaService.otp.findFirst({
-            where:{
-                otp: otp, 
-                userId: userId
+            where: {
+                otpPhone: otp,
+                userId: userId,
             }
         })
-        if(otpv.otp === otp){
+        if (otpv.otpPhone === otp) {
             return await this.prismaService.user.update({
-                where:{
+                where: {
                     id: userId,
                 },
-                data:{
-                    is_phone_number_verified:true
+                data: {
+                    is_phone_number_verified: true
                 }
             })
         }
-        else{
-            
-            console.log("sdfbdsjfh")
+        else {
+
+            throw new HttpException('Token Expired', HttpStatus.NOT_FOUND)
 
 
-            
+
         }
     }
+
+    // FUNCTION TO VERIFY EMAIL ADDRESS 
+
+    async verifyEmailAddress(otp: number, userId: number) {
+        try {
+            const otpv = await this.prismaService.otp.findFirst({
+                where: {
+                    otpEmail: otp,
+                    userId: userId,
+                }
+            })
+            if (otpv.otpEmail === otp) {
+                return await this.prismaService.user.update({
+                    where: {
+                        id: userId,
+                    },
+                    data: {
+                        is_email_verified: true
+                    }
+                })
+            }
+            else {
+
+                throw new HttpException('Token Expired', HttpStatus.NOT_FOUND)
+            }
+        } catch (error) {
+            throw new HttpException('Token Expired', HttpStatus.NOT_FOUND)
+        }
+    }
+
 
     changePassword() {
 
 
     }
-
-    // validate otp sent to the phone number 
-    verifyPhoneNumber(){}
-    // end of validating the phone number 
+ 
 
     // end of forgot password  funtion 
 }

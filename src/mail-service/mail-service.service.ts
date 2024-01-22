@@ -17,21 +17,21 @@ export class MailService {
                 subject: 'Login otp'
             }
         }
-        
+
     }
 
 
-    async sendMail(content, to, context:any , contentRep: string) {
+    async sendMail(content, to, context: any, contentRep: string) {
         console.log(this.contentEnum[contentRep].template)
         try {
             // console.log(this.contentEnum[content].template)
             this.logger.log(`Sending email to ${to} with the content ${content}`);
 
             const html = pug.renderFile(process.cwd() +
-            '/templates/' +
-            this.contentEnum[contentRep].template +
-            '.pug', context);
-           
+                '/templates/' +
+                this.contentEnum[contentRep].template +
+                '.pug', context);
+
 
             await this.mailerService.sendMail({
                 to: to,
