@@ -32,8 +32,9 @@ model User {
   bannerId                 String?
   isConfigured             Boolean?
   geohashLocation          String?
-  locationName             String?
-  locationId               Int?
+  location                 Json?
+  above_18                 Boolean        @default(false)
+  accept_terms             Boolean        @default(false)
   connections              Connection[]
   activities               UserActivity[]
   events                   Event[]
@@ -56,14 +57,12 @@ enum Role {
 }
 
 model Otp {
-  id     Int  @id @default(autoincrement())
-  otpPhone    Int?
-  otpEmail    Int?
-  user   User @relation(fields: [userId], references: [id])
-  userId Int  @unique
+  id       Int  @id @default(autoincrement())
+  otpPhone Int?
+  otpEmail Int?
+  user     User @relation(fields: [userId], references: [id])
+  userId   Int  @unique
 }
-
-
 
 model Events {
   id          Int      @id @default(autoincrement())
@@ -91,23 +90,25 @@ model Connection {
 }
 
 model UserActivity {
-  id                     Int       @id @default(autoincrement())
-  skillLevel             SkillLevel @default(Newbie)
-  nature                 String?
-  userActivityActivityId Int?
-  activity               Activity? @relation(fields: [userActivityActivityId], references: [id])
-
-  user   User @relation(fields: [userId], references: [id])
-  userId Int
+  id       Int        @id @default(autoincrement())
+  activity_name String
+  skillLevel  SkillLevel   @default(Newbie)
+  userId   Int
+  user     User       @relation(fields: [userId], references: [id])
 }
+  // nature   String?
+  
 
 model Activity {
-  id          Int      @id @default(autoincrement())
-  natures     String[]
-  skillLevels String[]
+  id           Int          @id @default(autoincrement())
+  name         String
+  // skillLevel  SkillLevel   @default(Newbie)
+  // useractivityId   Int
+  // useractivity UserActivity @relation(fields: [useractivityId], references: [id])
+
+  // natures     String[]
 
   // defining the relationship between the activity and the user
-  UserActivity UserActivity[]
 }
 
 model Event {
@@ -139,8 +140,8 @@ model EventAttendee {
 
 // skill level 
 enum SkillLevel {
-  Advanced_Level 
-  Intermediate_level 
-  Beginner_level 
+  Advanced_Level
+  Intermediate_level
+  Beginner_level
   Newbie
 }

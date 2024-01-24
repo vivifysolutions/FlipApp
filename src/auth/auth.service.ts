@@ -27,6 +27,10 @@ export class AuthService {
     // normal way to register  user 
     async signUp(registerDto: RegisterDto) {
         // generate hashed password 
+        if(registerDto.password !== registerDto.confirm_password){
+            throw new HttpException('Password mismatch!', HttpStatus.BAD_REQUEST)
+
+        }
         const hashPassword = await argon2.hash(registerDto.password)
         try {
             const user = await this.prismaService.user.create({
@@ -35,6 +39,9 @@ export class AuthService {
                     lastName: registerDto.lastName,
                     email: registerDto.email,
                     phonenumber: registerDto.phone_number,
+                    above_18: registerDto.above_18,
+                    accept_terms: registerDto.accept_terms,
+                    location: registerDto.location,
                     password: hashPassword
 
                 }
@@ -46,8 +53,8 @@ export class AuthService {
                 to: user.phonenumber,
                 body: `Hello ${user.firstName} here is the otp ${otpSMS}`
             }
-            this.smsService.sendTextMessaeg(messageBody)
-            await this.emailService.sendMail(otpEmail, user.email, { otpEmail, name: user.firstName }, "otp")
+            // this.smsService.sendTextMessaeg(messageBody)
+            // await this.emailService.sendMail(otpEmail, user.email, { otpEmail, name: user.firstName }, "otp")
             await this.prismaService.otp.create({
                 data: {
                     otpPhone: otpSMS,

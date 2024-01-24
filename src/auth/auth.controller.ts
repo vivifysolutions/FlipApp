@@ -11,18 +11,22 @@ import { AuthService } from './auth.service';
 import { LoginDto, RegisterDto } from './dto/registerDto';
 import { AuthGuard } from './auth.guard';
 import { UserDto } from 'src/user/dto/user.dto';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
 
 @Controller('auth')
+@ApiTags('Authentication endpoints')
 export class AuthController {
     constructor(private authService: AuthService) { }
 
     @Post('signup')
+    @ApiOperation({ summary: 'Signup User' })
     signUp(@Body() registerDto: RegisterDto) {
         return this.authService.signUp(registerDto)
     }
 
     @Post('login')
+    @ApiOperation({ summary: 'Login User' })
     signIn(@Body() loginDto: LoginDto) {
         return this.authService.signIn(loginDto)
     }
@@ -42,6 +46,7 @@ export class AuthController {
     // verify phone number 
     @UseGuards(AuthGuard)
     @Post('verifynumber')
+    @ApiOperation({ summary: 'User verify Phone number via otp' })
     verifyPhoneNumber(@Request() req) {
         const user: UserDto = req.user;
         console.log(user.id)
@@ -52,6 +57,7 @@ export class AuthController {
     // controller to verify email address 
     @UseGuards(AuthGuard)
     @Post('verifyemail')
+    @ApiOperation({ summary: 'User verify email address' })
     verifyEmail(@Request() req) {
         const user: UserDto = req.user;
         console.log(user.id)
