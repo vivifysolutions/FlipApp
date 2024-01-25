@@ -1,6 +1,9 @@
 -- CreateEnum
 CREATE TYPE "Role" AS ENUM ('USER', 'ADMIN');
 
+-- CreateEnum
+CREATE TYPE "SkillLevel" AS ENUM ('Advanced_Level', 'Intermediate_level', 'Beginner_level', 'Newbie');
+
 -- CreateTable
 CREATE TABLE "users" (
     "id" SERIAL NOT NULL,
@@ -9,17 +12,18 @@ CREATE TABLE "users" (
     "username" TEXT,
     "email" TEXT NOT NULL,
     "is_email_verified" BOOLEAN NOT NULL DEFAULT false,
-    "phonenumber" INTEGER,
+    "phonenumber" TEXT,
     "is_phone_number_verified" BOOLEAN NOT NULL DEFAULT false,
-    "bio" TEXT NOT NULL,
+    "bio" TEXT,
     "password" TEXT,
     "gender" TEXT,
     "photoUrl" TEXT,
     "bannerId" TEXT,
     "isConfigured" BOOLEAN,
     "geohashLocation" TEXT,
-    "locationName" TEXT,
-    "locationId" INTEGER,
+    "location" JSONB,
+    "above_18" BOOLEAN NOT NULL DEFAULT false,
+    "accept_terms" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3),
     "role" "Role" NOT NULL DEFAULT 'USER',
@@ -30,7 +34,8 @@ CREATE TABLE "users" (
 -- CreateTable
 CREATE TABLE "Otp" (
     "id" SERIAL NOT NULL,
-    "otp" INTEGER NOT NULL,
+    "otpPhone" INTEGER,
+    "otpEmail" INTEGER,
     "userId" INTEGER NOT NULL,
 
     CONSTRAINT "Otp_pkey" PRIMARY KEY ("id")
@@ -72,9 +77,6 @@ CREATE TABLE "Connection" (
 -- CreateTable
 CREATE TABLE "UserActivity" (
     "id" SERIAL NOT NULL,
-    "skillLevel" TEXT,
-    "nature" TEXT,
-    "userActivityActivityId" INTEGER,
     "userId" INTEGER NOT NULL,
 
     CONSTRAINT "UserActivity_pkey" PRIMARY KEY ("id")
@@ -83,8 +85,9 @@ CREATE TABLE "UserActivity" (
 -- CreateTable
 CREATE TABLE "Activity" (
     "id" SERIAL NOT NULL,
-    "natures" TEXT[],
-    "skillLevels" TEXT[],
+    "name" TEXT NOT NULL,
+    "skillLevels" "SkillLevel" NOT NULL DEFAULT 'Newbie',
+    "useractivityId" INTEGER NOT NULL,
 
     CONSTRAINT "Activity_pkey" PRIMARY KEY ("id")
 );
@@ -130,10 +133,10 @@ ALTER TABLE "Otp" ADD CONSTRAINT "Otp_userId_fkey" FOREIGN KEY ("userId") REFERE
 ALTER TABLE "Connection" ADD CONSTRAINT "Connection_connectedUserId_fkey" FOREIGN KEY ("connectedUserId") REFERENCES "users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "UserActivity" ADD CONSTRAINT "UserActivity_userActivityActivityId_fkey" FOREIGN KEY ("userActivityActivityId") REFERENCES "Activity"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "UserActivity" ADD CONSTRAINT "UserActivity_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "UserActivity" ADD CONSTRAINT "UserActivity_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Activity" ADD CONSTRAINT "Activity_useractivityId_fkey" FOREIGN KEY ("useractivityId") REFERENCES "UserActivity"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Event" ADD CONSTRAINT "Event_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE SET NULL ON UPDATE CASCADE;

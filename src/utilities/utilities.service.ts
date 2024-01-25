@@ -13,4 +13,15 @@ export class UtilitiesService {
             access_token: await this.jwtService.sign(payload)
         }
     }
+
+    // function to handle sending of mails 
+    sendEmail(){}
+
+    // funtion to generate otp
+    getOtp(){
+        const digits = Math.floor(Math.random()*10000)
+        return digits;
+    }
+    // end of the function to return the otp 
+
 }

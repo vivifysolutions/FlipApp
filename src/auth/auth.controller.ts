@@ -1,28 +1,68 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import {
+    Body,
+    Controller,
+    Get,
+    Post,
+    UseGuards,
+    Request,
+    Req,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { PrismaService } from 'src/prisma/prisma.service';
-import * as argon2 from 'argon2';
 import { LoginDto, RegisterDto } from './dto/registerDto';
-import { register } from 'module';
+import { AuthGuard } from './auth.guard';
+import { UserDto } from 'src/user/dto/user.dto';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
 
 @Controller('auth')
+@ApiTags('Authentication endpoints')
 export class AuthController {
-    constructor(private authService: AuthService, private prismaService: PrismaService){}
+    constructor(private authService: AuthService) { }
 
     @Post('signup')
-    signUp(@Body() registerDto: RegisterDto){
+    @ApiOperation({ summary: 'Signup User' })
+    signUp(@Body() registerDto: RegisterDto) {
         return this.authService.signUp(registerDto)
     }
 
     @Post('login')
-    signIn(@Body() loginDto:LoginDto){
+    @ApiOperation({ summary: 'Login User' })
+    signIn(@Body() loginDto: LoginDto) {
         return this.authService.signIn(loginDto)
     }
 
-    googleLogin(){}
 
-    facebookLogin(){}
 
-    twitterLogin(){}
+    // testing purpose only 
+
+
+
+    googleLogin() { }
+
+    facebookLogin() { }
+
+    twitterLogin() { }
+
+    // verify phone number 
+    @UseGuards(AuthGuard)
+    @Post('verifynumber')
+    @ApiOperation({ summary: 'User verify Phone number via otp' })
+    verifyPhoneNumber(@Request() req) {
+        const user: UserDto = req.user;
+        console.log(user.id)
+        const body = req.body;
+        return this.authService.verifyPhonNumber(body.otp, user.id)
+    }
+
+    // controller to verify email address 
+    @UseGuards(AuthGuard)
+    @Post('verifyemail')
+    @ApiOperation({ summary: 'User verify email address' })
+    verifyEmail(@Request() req) {
+        const user: UserDto = req.user;
+        console.log(user.id)
+        const body = req.body;
+        return this.authService.verifyEmailAddress(body.otp, user.id);
+    }
+
 }
