@@ -85,6 +85,7 @@ model Location {
 
 model Connection {
   id              Int   @id @default(autoincrement())
+  status Boolean @default(false)
   connectedUser   User? @relation(fields: [connectedUserId], references: [id])
   connectedUserId Int?
 }
@@ -113,17 +114,17 @@ model Activity {
 
 model Event {
   id          Int             @id @default(autoincrement())
-  hostId      String?
   title       String?
   description String?
   status      String?
+  Date        DateTime?
   startTime   DateTime?
   endTime     DateTime?
   location    String?
   attendees   EventAttendee[]
 
-  user   User? @relation(fields: [userId], references: [id])
-  userId Int?
+  user   User? @relation(fields: [hostId], references: [id])
+  hostId Int?
 }
 
 model EventAttendee {
