@@ -14,7 +14,8 @@ export class UserController {
     @UseGuards(AuthGuard)
     @Get('profile')
     userProfile(@Request() req){
-        let user:UserDto = req.user;
+        let user = req.user
+        console.log(user)
         delete user.password;
         return req.user;
     }

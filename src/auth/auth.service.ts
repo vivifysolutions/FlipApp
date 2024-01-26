@@ -1,8 +1,8 @@
 import {
-  ForbiddenException,
-  HttpException,
-  HttpStatus,
-  Injectable,
+    ForbiddenException,
+    HttpException,
+    HttpStatus,
+    Injectable,
 } from '@nestjs/common';
 import {
     ForgotPasswordDto,
@@ -17,6 +17,7 @@ import { UtilitiesService } from 'src/utilities/utilities.service';
 import { MailService } from 'src/mail-service/mail-service.service';
 import { TwilioService } from 'src/shared/Twilio/twilio.service';
 import { SmsDto } from 'src/shared/Twilio/dto/sms-dto';
+import { UserDto } from 'src/user/dto/user.dto';
 
 @Injectable()
 export class AuthService {
@@ -27,7 +28,7 @@ export class AuthService {
     // normal way to register  user 
     async signUp(registerDto: RegisterDto) {
         // generate hashed password 
-        if(registerDto.password !== registerDto.confirm_password){
+        if (registerDto.password !== registerDto.confirm_password) {
             throw new HttpException('Password mismatch!', HttpStatus.BAD_REQUEST)
 
         }
@@ -78,16 +79,28 @@ export class AuthService {
     async signIn(loginDto: LoginDto) {
         const { email, password } = loginDto;
         // check if the user exists 
-        const user = await this.prismaService.user.findFirst({
+        let user = await this.prismaService.user.findFirst({
             where: {
                 email: email
             }
         })
         if (!user) throw new ForbiddenException("Invalid credentials")
+        const useractivities = await this.prismaService.userActivity.findMany({
+            where: {
+                userId: user.id
+            }
+        })
+        console.log(useractivities)
         const passwordMatch = await argon2.verify(user.password, password)
         if (!passwordMatch) throw new ForbiddenException("Invalid credentials")
 
-        return this.utilityService.signPayload(user)
+        const modifiedUser = {
+            ...user,
+            activities: useractivities
+        }
+
+
+        return this.utilityService.signPayload(modifiedUser)
 
     }
 
@@ -173,7 +186,7 @@ export class AuthService {
 
 
     }
- 
+
 
     // end of forgot password  funtion 
 }

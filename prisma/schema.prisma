@@ -23,7 +23,7 @@ model User {
   username                 String?        @unique
   email                    String         @unique
   is_email_verified        Boolean        @default(false)
-  phonenumber              String?
+  phonenumber              String?        @unique
   is_phone_number_verified Boolean        @default(false)
   bio                      String?
   password                 String?
@@ -103,13 +103,6 @@ model UserActivity {
 model Activity {
   id           Int          @id @default(autoincrement())
   name         String
-  // skillLevel  SkillLevel   @default(Newbie)
-  // useractivityId   Int
-  // useractivity UserActivity @relation(fields: [useractivityId], references: [id])
-
-  // natures     String[]
-
-  // defining the relationship between the activity and the user
 }
 
 model Event {
@@ -131,10 +124,10 @@ model EventAttendee {
   id     Int     @id @default(autoincrement())
   status String?
 
-  userId  Int?
+  attendeeId  Int?
   eventId Int?
   event   Event? @relation(fields: [eventId], references: [id])
-  user    User?  @relation(fields: [userId], references: [id])
+  user    User?  @relation(fields: [attendeeId], references: [id])
 }
 
 // end of schema creation 
