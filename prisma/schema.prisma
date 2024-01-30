@@ -94,6 +94,7 @@ model UserActivity {
   id       Int        @id @default(autoincrement())
   activity_name String
   skillLevel  SkillLevel   @default(Newbie)
+  playStyle playStyle @default(Casual)
   userId   Int
   user     User       @relation(fields: [userId], references: [id])
 }
@@ -103,6 +104,11 @@ model UserActivity {
 model Activity {
   id           Int          @id @default(autoincrement())
   name         String
+} 
+
+enum playStyle {
+  Competitive 
+  Casual
 }
 
 model Event {
