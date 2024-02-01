@@ -19,12 +19,11 @@ export interface UserDto {
   createdAt?: string;
   updatedAt?: string;
   role?: string;
-  
 }
 
 // activities: activities[];
 //   connections: connectedUser[];
-//   events: eventsList[];
+  // events: eventsList[];
 
 
 
@@ -73,21 +72,6 @@ export interface connectedUserInfo {
 }
  
 
-export interface eventsList{
-  id: number
-  title: string
-  description : string
-  status: boolean
-  hostId: number
-  startTime: Date
-  endTime: Date 
-  attendees : EventAttendee[]
-} 
 
 
-export interface evenAttendee{
-  id: number
-  firstName: string
-  lastName: string
-  photoUrl: string
-}
+

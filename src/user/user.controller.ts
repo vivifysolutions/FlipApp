@@ -1,13 +1,16 @@
 import {
-    Body,
-    Controller,
-    Get,
-    Param,
-    Put,
-    Request,
-    UploadedFile,
-    UseGuards,
-    UseInterceptors,
+  Body,
+  Controller,
+  FileTypeValidator,
+  Get,
+  MaxFileSizeValidator,
+  Param,
+  ParseFilePipe,
+  Put,
+  Request,
+  UploadedFile,
+  UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { UserDto } from './dto/user.dto';
@@ -34,6 +37,7 @@ export class UserController {
     }
 
 
+    
     // user update profiles 
     @UseGuards(AuthGuard)
     @Put('updateProfile/:id')
@@ -42,17 +46,24 @@ export class UserController {
         const fileBufferuffer = file.buffer;
         const filename = file.originalname;
         const s3Url = await this.userService.uploadProfilePicService(fileBufferuffer, filename);
+        const location = JSON.parse(body.location as string)
+        console.log(location.name)
         const payload = {
             ...body,
-            photoUrl: s3Url
-            // location:{
-            //     name:body.location.name,
-            //     lat:body.location.lat,
-            //     long:body.location.long
-            // }
+            photoUrl: s3Url,
+            location:{
+                name:location.name,
+                lat:location.lat,
+                long:location.long
+            }
         }
         return this.userService.updateUserProfile(+id, payload)
     }
     // end of user updating profiles 
+    // get user profile 
+    @Get('userProfile/:id')
+    getUserProfile(@Param('id') id: string){
+        return this.userService.getUserProfile(id)
+    }
 
 }

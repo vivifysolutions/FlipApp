@@ -24,4 +24,9 @@ export class UtilitiesService {
     }
     // end of the function to return the otp 
 
+
+    dataReponseObject(message: string, statusCode: number){
+        return {data: {message: message, status: statusCode}}
+    }
+
 }

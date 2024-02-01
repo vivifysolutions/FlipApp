@@ -1,11 +1,11 @@
 import {
-    Body,
-    Controller,
-    Get,
-    Post,
-    UseGuards,
-    Request,
-    Req,
+  Body,
+  Controller,
+  Get,
+  Post,
+  UseGuards,
+  Request,
+  Req,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto, RegisterDto } from './dto/registerDto';
@@ -49,7 +49,6 @@ export class AuthController {
     @ApiOperation({ summary: 'User verify Phone number via otp' })
     verifyPhoneNumber(@Request() req) {
         const user: UserDto = req.user;
-        console.log(user.id)
         const body = req.body;
         return this.authService.verifyPhonNumber(body.otp, user.id)
     }

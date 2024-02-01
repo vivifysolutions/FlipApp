@@ -1,6 +1,8 @@
 import {
   CanActivate,
   ExecutionContext,
+  HttpException,
+  HttpStatus,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -21,21 +23,15 @@ export class AuthGuard implements CanActivate {
         if (!token) {
             throw new UnauthorizedException();
         }
-
         try {
             const payload = await this.jwtService.verify(token, {
                 secret: process.env.JWT_SECRET
             })
-
-
-
             request['user'] = payload;
 
         } catch {
-            throw new UnauthorizedException();
+            throw new HttpException('Please Login again, Session expired', HttpStatus.NOT_FOUND)
         }
-
-
         return true;
 
     }

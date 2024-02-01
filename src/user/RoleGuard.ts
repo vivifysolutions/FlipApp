@@ -1,10 +1,10 @@
 import {
-    CanActivate,
-    ExecutionContext,
-    HttpException,
-    HttpStatus,
-    Injectable,
-    UnauthorizedException,
+  CanActivate,
+  ExecutionContext,
+  HttpException,
+  HttpStatus,
+  Injectable,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from "@nestjs/jwt";
 import { log } from 'console';

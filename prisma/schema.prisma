@@ -60,22 +60,23 @@ model Otp {
   id       Int  @id @default(autoincrement())
   otpPhone Int?
   otpEmail Int?
-  user     User @relation(fields: [userId], references: [id])
+  user     User @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId   Int  @unique
 }
 
-model Events {
-  id          Int      @id @default(autoincrement())
-  title       String
-  description String
-  location    String
-  date        DateTime
-  startTime   DateTime
-  endTime     DateTime
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  userId      Int
-}
+// model Events {
+//   id          Int      @id @default(autoincrement())
+//   title       String
+//   description String
+//   location    String
+//   date        DateTime
+//   startTime   DateTime
+//   endTime     DateTime
+//   createdAt   DateTime @default(now())
+//   updatedAt   DateTime @updatedAt
+//   userId      Int
+//   user User @relation(fields: [userId],references: [id])
+// }
 
 model Location {
   id   Int    @id @default(autoincrement())
@@ -86,7 +87,7 @@ model Location {
 model Connection {
   id              Int   @id @default(autoincrement())
   status Boolean @default(false)
-  connectedUser   User? @relation(fields: [connectedUserId], references: [id])
+  connectedUser   User? @relation(fields: [connectedUserId], references: [id], onDelete: Cascade)
   connectedUserId Int?
 }
 
@@ -96,7 +97,7 @@ model UserActivity {
   skillLevel  SkillLevel   @default(Newbie)
   playStyle playStyle @default(Casual)
   userId   Int
-  user     User       @relation(fields: [userId], references: [id])
+  user     User       @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
   // nature   String?
   
@@ -122,7 +123,7 @@ model Event {
   location    String?
   attendees   EventAttendee[]
 
-  user   User? @relation(fields: [hostId], references: [id])
+  user   User? @relation(fields: [hostId], references: [id], onDelete: Cascade)
   hostId Int?
 }
 
@@ -132,8 +133,8 @@ model EventAttendee {
 
   attendeeId  Int?
   eventId Int?
-  event   Event? @relation(fields: [eventId], references: [id])
-  user    User?  @relation(fields: [attendeeId], references: [id])
+  event   Event? @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user    User?  @relation(fields: [attendeeId], references: [id], onDelete: Cascade)
 }
 
 // end of schema creation 

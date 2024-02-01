@@ -6,12 +6,10 @@ import { Console } from "console";
 
 @Injectable()
 export class TwilioService {
-
-
-
+    
     constructor(private config: ConfigService) { }
 
-//    function to send text messages => dynamic 
+    //    function to send text messages => dynamic 
     sendTextMessaeg(textBody: SmsDto) {
         try {
             const client = new Twilio(this.config.get('TWILIO_ACCOUNTID'), this.config.get('TWILIO_AUTHTOKEN'))
@@ -25,7 +23,7 @@ export class TwilioService {
         }
 
 
-    } 
+    }
 
     // end of the function to send messages 
 
