@@ -1,4 +1,5 @@
 import { EventAttendee } from '@prisma/client';
+import { activitiesDto } from 'src/activity/dto/activityDto';
 
 export interface UserDto {
   id?: number;
@@ -38,7 +39,7 @@ export interface ProfileDto {
   photoUrl?: any
   // location: location
   updatedAt: string
-  activities: activities[]
+  activities: activitiesDto[]
 }
 
 
@@ -49,12 +50,7 @@ export interface location {
 }
 
 
-export interface activities {
-  activity_name: string
-  skillLevel: "Advanced_Level" | "Intermediate_Level" | "Beginner_level" | "Newbie"
-  playStyle: "Competitive" | "Casual"
-  userId: number
-}
+
 
 export interface connectedUser {
   id: number;
@@ -68,7 +64,7 @@ export interface connectedUserInfo {
     firstName: string
     lastName: string
     location: location,
-    activities: activities[]
+    activities: activitiesDto[]
 }
  
 

@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { eventDto } from './dto/eventDto';
+import { eventDto, registerEvent } from './dto/eventDto';
 import { UtilitiesService } from 'src/utilities/utilities.service';
 
 
@@ -74,10 +74,42 @@ export class EventService {
                return this.util.dataReponseObject("Event Updated Successfully", 200)
             
         } catch (error) {
-            throw new Error(error)
+            throw new Error(error.message)
+        }
+    }
+    // user delete an event
+    async userDeleteEvent(event:{eventId:number, userId: number}){
+        try {
+            await this.prismaService.event.delete({
+                where:{
+                    id:event.eventId,
+                    hostId: event.userId
+                }
+            })
+
+            return this.util.dataReponseObject("Event Deleted Successfully", 204)
+        } catch (error) {
+            throw new Error(error.message)
         }
     }
     // register for an event 
-    // user delete an event 
+
+    async userRegisterForEvent(eventInfo:registerEvent){
+        
+        try {
+            await this.prismaService.eventAttendee.create({
+                data: {
+                    eventId: eventInfo.eventId,
+                    attendeeId: eventInfo.attendeeId,
+                    status: 'Registered'
+                }
+            })
+
+            return this.util.dataReponseObject("Registered for the event Successfully", 200)
+        } catch (error) {
+            throw new Error(error.message)
+        }
+    }
+     
 }
 

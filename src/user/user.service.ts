@@ -131,7 +131,16 @@ export class UserService {
                     userId: +userId
                 }
             })
-            // get user events 
+        //  for(let act of userActivities){
+        //     const singleactivity = await this.prismaService.activity.findFirst({
+        //         where:{
+        //             id: act.activity_id
+        //         }
+        //     })
+
+            
+        //  }
+         
             const userEvents = await this.prismaService.event.findMany({
                 where: {
                     hostId: +userId

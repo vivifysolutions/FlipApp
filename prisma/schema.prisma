@@ -35,7 +35,8 @@ model User {
   location                 Json?
   above_18                 Boolean        @default(false)
   accept_terms             Boolean        @default(false)
-  connections              Connection[]
+  connectionsSent          Connection[]   @relation("SentConnections")
+  connectionsReceived      Connection[]   @relation("ReceivedConnections")
   activities               UserActivity[]
   events                   Event[]
   createdAt                DateTime       @default(now())
@@ -64,20 +65,6 @@ model Otp {
   userId   Int  @unique
 }
 
-// model Events {
-//   id          Int      @id @default(autoincrement())
-//   title       String
-//   description String
-//   location    String
-//   date        DateTime
-//   startTime   DateTime
-//   endTime     DateTime
-//   createdAt   DateTime @default(now())
-//   updatedAt   DateTime @updatedAt
-//   userId      Int
-//   user User @relation(fields: [userId],references: [id])
-// }
-
 model Location {
   id   Int    @id @default(autoincrement())
   lat  Float?
@@ -85,30 +72,36 @@ model Location {
 }
 
 model Connection {
-  id              Int   @id @default(autoincrement())
-  status Boolean @default(false)
-  connectedUser   User? @relation(fields: [connectedUserId], references: [id], onDelete: Cascade)
-  connectedUserId Int?
+  id              Int     @id @default(autoincrement())
+  status          Boolean @default(false)
+  sendingUser     User    @relation("SentConnections", fields: [sendingUserId], references: [id])
+  sendingUserId   Int
+  receivingUser   User    @relation("ReceivedConnections", fields: [receivingUserId], references: [id])
+  receivingUserId Int
 }
 
 model UserActivity {
-  id       Int        @id @default(autoincrement())
-  activity_name String
-  skillLevel  SkillLevel   @default(Newbie)
-  playStyle playStyle @default(Casual)
-  userId   Int
-  user     User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id            Int        @id @default(autoincrement())
+  activity_id   Int
+  activity_name String     @default(" ")
+  activity      Activity   @relation(fields: [activity_id], references: [id], onDelete: Cascade)
+  skillLevel    SkillLevel @default(Newbie)
+  playStyle     playStyle  @default(Casual)
+  userId        Int
+  user          User       @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
-  // nature   String?
-  
+
+// nature   String?
 
 model Activity {
-  id           Int          @id @default(autoincrement())
-  name         String
-} 
+  id   Int    @id @default(autoincrement())
+  name String
+
+  UserActivity UserActivity[]
+}
 
 enum playStyle {
-  Competitive 
+  Competitive
   Casual
 }
 
@@ -117,6 +110,7 @@ model Event {
   title       String?
   description String?
   status      String?
+  flag        flag?           @default(Public)
   Date        DateTime?
   startTime   DateTime?
   endTime     DateTime?
@@ -127,14 +121,24 @@ model Event {
   hostId Int?
 }
 
-model EventAttendee {
-  id     Int     @id @default(autoincrement())
-  status String?
+enum flag {
+  Public
+  Private
+}
 
-  attendeeId  Int?
-  eventId Int?
-  event   Event? @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  user    User?  @relation(fields: [attendeeId], references: [id], onDelete: Cascade)
+model EventAttendee {
+  id     Int                 @id @default(autoincrement())
+  status EventAttendeeStatus @default(Unregistered)
+
+  attendeeId Int?
+  eventId    Int?
+  event      Event? @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user       User?  @relation(fields: [attendeeId], references: [id], onDelete: Cascade)
+}
+
+enum EventAttendeeStatus {
+  Unregistered
+  Registered
 }
 
 // end of schema creation 

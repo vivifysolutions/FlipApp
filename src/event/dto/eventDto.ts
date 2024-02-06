@@ -19,6 +19,10 @@ export interface eventDto {
     lastName: string
     photoUrl: string
   } 
+  export interface registerEvent{
+    eventId: number;
+    attendeeId: number;
+  }
 
 
   export class EventCreateDto{
