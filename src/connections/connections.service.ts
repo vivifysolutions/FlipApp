@@ -8,9 +8,9 @@ export class ConnectionsService {
 
     // user send connect request 
     async connectUsers(sendingUserId: number, receivingUserId: number) {
-           try {
-            const sendingUser = await this.prisma.user.findUnique({where: {id: sendingUserId,}})
-            const receivingUser = await this.prisma.user.findUnique({where: {id: receivingUserId}})
+        try {
+            const sendingUser = await this.prisma.user.findUnique({ where: { id: sendingUserId, } })
+            const receivingUser = await this.prisma.user.findUnique({ where: { id: receivingUserId } })
             let receiverlocation = JSON.stringify(receivingUser.location)
             receiverlocation = JSON.parse(receiverlocation)
             let senderlocation = JSON.stringify(sendingUser.location)
@@ -18,43 +18,170 @@ export class ConnectionsService {
 
             // calculate distance 
             const distance = this.caluculateDistance(senderlocation['lat'], senderlocation['long'], receiverlocation['lat'], receiverlocation['long'])
-            if(distance > 50){
+            if (distance > 50) {
                 return new HttpException("You exceeded the distance", HttpStatus.FORBIDDEN)
             }
             // check if user is already connected
             const connectedUser = await this.prisma.connection.findFirst({
-                where:{
-                    sendingUserId:+sendingUser.id,
-                    receivingUserId:+receivingUser.id
+                where: {
+                    sendingUserId: +sendingUser.id,
+                    receivingUserId: +receivingUser.id
                 }
             })
-            if(connectedUser) return this.util.dataReponseObject('Already sent a connection Request', 200)
+            if (connectedUser) return this.util.dataReponseObject('Already sent a connection Request', 200)
 
             await this.prisma.connection.create({
-                data:{
-                    sendingUserId:+sendingUser.id,
-                    receivingUserId:+receivingUser.id
+                data: {
+                    sendingUserId: +sendingUser.id,
+                    receivingUserId: +receivingUser.id
                 }
             })
 
             return this.util.dataReponseObject("Connection request sent", 200)
-            
-           } catch (error) {
-                throw new Error(error.message)
-           }
+
+        } catch (error) {
+            throw new Error(error.message)
+        }
     }
 
-    getAllPendingConnections(userId:number){
+    // userViewAll his/her connections 
+    async viewAllConnections(userId: number) {
+        try {
+            const user = await this.prisma.user.findFirst({
+                where: {
+                    id: userId,
+                }
+            })
+            const connections = this.prisma.connection.findMany({
+                where: {
+                    status: true,
+                    OR: [
+                        { sendingUserId: user.id },
+                        { receivingUserId: user.id },
+                        { status: true }
+                    ]
+                },
+                include: {
+                    sendingUser: {
+                        select: {
+                            firstName: true,
+                            lastName: true,
+                            username: true,
+                            photoUrl: true,
+                            activities: true,
+                            bio: true,
+                            events: true,
+                        }
+                    }
+                }
+            });
+
+            (await connections).forEach(conn => delete conn.receivingUserId)
+
+            return connections;
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    }
+
+    async getAllPendingreceivedConnections(userId: number) {
+        try {
+            const receivedConnections = await this.prisma.connection.findMany({
+                where: {
+                    status: false,
+                    receivingUserId: userId,
+                },
+                include: {
+                    sendingUser: {
+                        select: {
+                            firstName: true,
+                            lastName: true,
+                            activities: true,
+                            photoUrl: true
+                        }
+                    },
+
+                }
+            })
+            return receivedConnections;
+
+        } catch (error) {
+            throw new Error(error);
+        }
 
     }
 
     // user accept to connect request  
-    userAcceptConnectRequest() { }
-    // user view all the connections 
-    userViewAllConnections() { }
+    async userAcceptConnectRequest(receiverid: number, connectSentId: number) {
+        try {
+            const accpetedConnection = await this.prisma.connection.update({
+                data: {
+                    status: true,
+                },
+                where: {
+                    receivingUserId: receiverid,
+                    id: connectSentId
+                },
+                include: {
+                    sendingUser: {
+                        select: {
+                            firstName: true
+                        }
+                    }
+                }
+            })
+            return this.util.dataReponseObject(`You are now connected with ${accpetedConnection.sendingUser.firstName}`, 200)
+        } catch (error) {
+            throw new Error(error.message)
+        }
+    }
 
     // user revoke/terminate connection 
-    userTerminateConnection() { }
+    async revokeConnection(connectionId: number, userId: number) {
+        try {
+            const connection = await this.prisma.connection.delete({
+                where: {
+                    id: connectionId,
+                    receivingUserId: userId
+                }
+            })
+            return this.util.dataReponseObject("You have revoked the connection", 200);
+        } catch (error) {
+            throw new Error(error.message)
+        }
+    }
+
+    // get connection Profile 
+    async connectionProfile(userId: number) {
+        try {
+            let connectionProfile = await this.prisma.user.findFirst({
+                where: {
+                    id: userId,
+                },
+            })
+
+            const { phonenumber, email, is_email_verified, 
+                is_phone_number_verified, password, bannerId, 
+                isConfigured, geohashLocation, above_18, 
+                accept_terms, createdAt, updatedAt, role,gender, ...connectionTrimmed } = connectionProfile;
+
+            return connectionTrimmed;
+        } catch (error) {
+            throw new Error(error.message)
+        }
+    }
+
+    //     Name
+
+    // Location
+
+    // Bio
+
+    // Activities
+
+    // Picture
+
+    // Memberships (Later in V2)
 
     // algorithm to calculate the distance between user 
     caluculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
