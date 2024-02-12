@@ -1,14 +1,13 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UserDto } from './dto/user.dto';
-import * as AWS from "aws-sdk"
 import { ConfigService } from '@nestjs/config';
 import { PutObjectAclCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { MailService } from 'src/mail-service/mail-service.service';
 import { UtilitiesService } from 'src/utilities/utilities.service';
 import { SmsDto } from 'src/shared/Twilio/dto/sms-dto';
 import { TwilioService } from 'src/shared/Twilio/twilio.service';
-import { from, mergeMap, toArray } from 'rxjs';
+
 
 @Injectable()
 export class UserService {
@@ -131,16 +130,7 @@ export class UserService {
                     userId: +userId
                 }
             })
-        //  for(let act of userActivities){
-        //     const singleactivity = await this.prismaService.activity.findFirst({
-        //         where:{
-        //             id: act.activity_id
-        //         }
-        //     })
 
-            
-        //  }
-         
             const userEvents = await this.prismaService.event.findMany({
                 where: {
                     hostId: +userId
@@ -173,36 +163,3 @@ export class UserService {
     }
 
 }
-
-
-
- // get event attendees 
-            
-            // const eventatt$ = from(userEvents).pipe(
-            //   mergeMap(async (event) => {
-            //     const attendees = await this.prismaService.eventAttendee.findMany({
-            //       where: {
-            //         eventId: event.id,
-            //       },
-            //     });
-
-            //     const user = 
-            
-            //     const userData = await this.prismaService.user.findFirst({
-            //       where: {
-            //         id: userId,
-            //       },
-            //     });
-            
-            //     return { event, attendees, userData };
-            //   }),
-            //   toArray()
-            // );
-            
-            // eventatt$.subscribe((eventDataArray) => {
-            //   // Handle the optimized result
-            //   console.log(eventDataArray);
-            // });
-            
-
-            // console.log(eventatt$)

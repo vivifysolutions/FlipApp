@@ -18,11 +18,14 @@ import { AuthGuard } from 'src/auth/auth.guard';
 export class EventController {
     constructor(private eventService:EventService){}
 
+    // get user events 
+    @UseGuards(AuthGuard)
     @Get('user/:id')
     getUserEvents(@Param('id') id:string){
         return this.eventService.getUserEvents(+id);
     }
 
+    // create event 
     @UseGuards(AuthGuard)
     @Post("createEvent")
     userCreateEvent(@Request() req, @Body() body:EventCreateDto){
@@ -31,6 +34,7 @@ export class EventController {
         return this.eventService.userCreateEvent(event)
     }
 
+    // update event 
     @UseGuards(AuthGuard)
     @Put("updateevent/:eventId")
     userUpdateOwnCreatedEvent(@Param('eventId') eventId:number, @Request() req, @Body() eventInfo: eventDto){
@@ -43,6 +47,7 @@ export class EventController {
         return this.eventService.userUpdateOwnCreatedEvent(event);
     }
 
+    // delete event 
     @UseGuards(AuthGuard)
     @Delete('deleteevent/:eventId')
     userDeleteEvent(@Param('eventId') eventId:number, @Request() req){
@@ -54,7 +59,7 @@ export class EventController {
         return this.eventService.userDeleteEvent(event);
     }
 
-
+    // user register for event 
     @UseGuards(AuthGuard)
     @Post('registerevent/:eventId')
     userRegisterForEvent(@Param('eventId') eventId:number, @Request() req){

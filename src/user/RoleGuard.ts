@@ -7,8 +7,6 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from "@nestjs/jwt";
-import { log } from 'console';
-import { Request } from 'express';
 import { extractTokenFromHeader } from 'src/utilities/getToken';
 
 

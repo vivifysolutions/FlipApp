@@ -1,11 +1,8 @@
 import {
   Body,
   Controller,
-  FileTypeValidator,
   Get,
-  MaxFileSizeValidator,
   Param,
-  ParseFilePipe,
   Put,
   Request,
   UploadedFile,
@@ -17,7 +14,7 @@ import { UserDto } from './dto/user.dto';
 import { UserService } from './user.service';
 import { RoleGuard } from './RoleGuard';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { log } from 'console';
+
 
 @Controller('user')
 export class UserController {
@@ -47,7 +44,6 @@ export class UserController {
         const filename = file.originalname;
         const s3Url = await this.userService.uploadProfilePicService(fileBufferuffer, filename);
         const location = JSON.parse(body.location as string)
-        console.log(location.name)
         const payload = {
             ...body,
             photoUrl: s3Url,
@@ -60,6 +56,7 @@ export class UserController {
         return this.userService.updateUserProfile(+id, payload)
     }
     // end of user updating profiles 
+
     // get user profile 
     @Get('userProfile/:id')
     getUserProfile(@Param('id') id: string){

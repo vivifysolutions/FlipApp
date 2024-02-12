@@ -22,6 +22,7 @@ export class EventService {
             throw new Error(error)
         }
     }
+    
     // create an event 
     async userCreateEvent(eventInfo: eventDto) {
         try {
@@ -44,6 +45,7 @@ export class EventService {
             throw new Error(error)
         }
     }
+
     // user update event
     async userUpdateOwnCreatedEvent(eventInfo: eventDto){
         try {
@@ -77,6 +79,7 @@ export class EventService {
             throw new Error(error.message)
         }
     }
+
     // user delete an event
     async userDeleteEvent(event:{eventId:number, userId: number}){
         try {
@@ -92,8 +95,8 @@ export class EventService {
             throw new Error(error.message)
         }
     }
-    // register for an event 
 
+    // register for an event 
     async userRegisterForEvent(eventInfo:registerEvent){
         
         try {

@@ -171,17 +171,6 @@ export class ConnectionsService {
         }
     }
 
-    //     Name
-
-    // Location
-
-    // Bio
-
-    // Activities
-
-    // Picture
-
-    // Memberships (Later in V2)
 
     // algorithm to calculate the distance between user 
     caluculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {

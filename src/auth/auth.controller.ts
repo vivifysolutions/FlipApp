@@ -1,11 +1,10 @@
 import {
   Body,
   Controller,
-  Get,
   Post,
   UseGuards,
   Request,
-  Req,
+  Put,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto, RegisterDto } from './dto/registerDto';
@@ -59,9 +58,21 @@ export class AuthController {
     @ApiOperation({ summary: 'User verify email address' })
     verifyEmail(@Request() req) {
         const user: UserDto = req.user;
-        console.log(user.id)
         const body = req.body;
         return this.authService.verifyEmailAddress(body.otp, user.id);
+    }
+
+    // Change the password 
+    @UseGuards(AuthGuard)
+    @Put('changePassword')
+    changePassword(@Request() req){
+        const user = req.user;
+        let payload = req.body;
+        payload = {
+            ...payload,
+            userId: user.id,
+        }
+        return this.authService.changePassword(payload);  
     }
 
 }
