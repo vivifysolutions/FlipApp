@@ -160,16 +160,88 @@ export class ConnectionsService {
                 },
             })
 
-            const { phonenumber, email, is_email_verified, 
-                is_phone_number_verified, password, bannerId, 
-                isConfigured, geohashLocation, above_18, 
-                accept_terms, createdAt, updatedAt, role,gender, ...connectionTrimmed } = connectionProfile;
+            const { phonenumber, email, is_email_verified,
+                is_phone_number_verified, password, bannerId,
+                isConfigured, geohashLocation, above_18,
+                accept_terms, createdAt, updatedAt, role, gender, ...connectionTrimmed } = connectionProfile;
 
             return connectionTrimmed;
         } catch (error) {
             throw new Error(error.message)
         }
     }
+
+    // return suggested connections basing on Distance and Activities 
+    async SuggestedConnectionBasedDistanceAndActivites(userId: number) {
+        try {
+            const getUser = await this.prisma.user.findFirst({
+                where: {
+                    id: userId,
+                },
+                include: {
+                    activities: {
+                        select: {
+                            id: true,
+                            activity_id: true,
+                            activity_name: true
+                        }
+                    }
+                },
+
+            })
+            const getAllUsers = await this.prisma.user.findMany({
+                where: {
+                    NOT: {
+                        id: getUser.id
+                    }
+                },
+                include: {
+                    activities: {
+                        select: {
+                            id: true,
+                            activity_id: true,
+                            activity_name: true
+                        }
+                    }
+                }
+            })
+            const matchingActivitiesCounts = new Map<number, number>();
+            getAllUsers.forEach((gottenUser) => gottenUser.activities.forEach((activity) => {
+                const activityId = activity.activity_id
+                const distance = this.caluculateDistance(getUser.location['lat'], getUser.location['long'], gottenUser.location['lat'], gottenUser.location['long'])
+                if(distance <= 15){
+                    
+                const count = getUser.activities.filter((activity) => activity.activity_id === activityId).length
+                if (count > 0) {
+                    matchingActivitiesCounts.set(gottenUser.id, (matchingActivitiesCounts.get(gottenUser.id) || 0) + 1)
+                }
+                }
+            
+                
+            }))
+            const sortedIds = Array.from(matchingActivitiesCounts.entries()).sort((a, b) => b[1] - a[1]).map(entry => entry[0])
+            console.log(matchingActivitiesCounts)
+            console.log(sortedIds)
+            const suggestedConnections = await Promise.all(sortedIds.map(userId => this.prisma.user.findFirst({
+                where: {
+                    id: userId
+                },
+                select: {
+                    id: true,
+                    firstName: true,
+                    lastName: true,
+                    username: true,
+                    photoUrl: true
+                }
+            })))
+            return suggestedConnections
+        } catch (error) {
+            return new HttpException(error, HttpStatus.BAD_REQUEST)
+        }
+    }
+
+
+
 
 
     // algorithm to calculate the distance between user 

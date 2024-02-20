@@ -43,6 +43,8 @@ model User {
   updatedAt                DateTime?      @updatedAt
   role                     Role           @default(USER)
   otp                      Otp?
+  messagesSent   Chat[]  @relation("messagesSent")
+  messagesReceived   Chat[]  @relation("messagesReceived")
 
   // for me to have userID in the eventattendee table it seems I need to add this field?
   eventAttendees EventAttendee[]
@@ -114,6 +116,7 @@ model Event {
   status      String?
   flag        flag?           @default(Public)
   Date        DateTime?
+  isPublic Boolean @default(false)
   startTime   DateTime?
   endTime     DateTime?
   location    String?
@@ -151,4 +154,17 @@ enum SkillLevel {
   Intermediate_level
   Beginner_level
   Newbie
+}
+ 
+
+// models relating to chats  
+model Chat{
+  id Int @id @default(autoincrement())
+  date DateTime @default(now())
+  sender User @relation("messagesSent",fields: [senderId], references: [id], onDelete: Cascade)
+  senderId Int 
+  receiver User @relation("messagesReceived",fields: [receiverId], references: [id], onDelete: Cascade)
+  receiverId Int 
+  content String 
+  isRead Boolean @default(false)
 }

@@ -62,5 +62,13 @@ export class ConnectionsController {
         return this.connectionService.connectionProfile(+sendingUserId)
     }
 
+     // return suggested connections basing on Distance and Activities
+     @UseGuards(AuthGuard)
+     @Get("suggestions") 
+     async SuggestedConnectionBasedDistanceAndActivites(@Request() req){
+        const user = req.user;
+        return this.connectionService.SuggestedConnectionBasedDistanceAndActivites(+user.id)
+     }
+
 
 }

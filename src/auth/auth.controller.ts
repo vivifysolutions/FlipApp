@@ -18,31 +18,38 @@ import { ApiOperation, ApiTags } from '@nestjs/swagger';
 export class AuthController {
     constructor(private authService: AuthService) { }
 
+    /**
+     * User Sign Up 
+     * @method Post
+     */
     @Post('signup')
     @ApiOperation({ summary: 'Signup User' })
     signUp(@Body() registerDto: RegisterDto) {
         return this.authService.signUp(registerDto)
     }
 
+    /**
+     * User Login
+     * @method post
+     */
     @Post('login')
     @ApiOperation({ summary: 'Login User' })
     signIn(@Body() loginDto: LoginDto) {
         return this.authService.signIn(loginDto)
     }
-
-
-
     // testing purpose only 
-
-
-
     googleLogin() { }
 
     facebookLogin() { }
 
     twitterLogin() { }
 
-    // verify phone number 
+    // 
+    /**
+     * 
+     * verify phone number 
+     * @method Post
+     */
     @UseGuards(AuthGuard)
     @Post('verifynumber')
     @ApiOperation({ summary: 'User verify Phone number via otp' })
@@ -52,7 +59,10 @@ export class AuthController {
         return this.authService.verifyPhonNumber(body.otp, user.id)
     }
 
-    // controller to verify email address 
+    /**
+     * controller to verify email address 
+     * @method Post
+     */
     @UseGuards(AuthGuard)
     @Post('verifyemail')
     @ApiOperation({ summary: 'User verify email address' })
@@ -62,7 +72,11 @@ export class AuthController {
         return this.authService.verifyEmailAddress(body.otp, user.id);
     }
 
-    // Change the password 
+    /**
+     * 
+     * Change the password
+     * @method PUT
+     */ 
     @UseGuards(AuthGuard)
     @Put('changePassword')
     changePassword(@Request() req){
