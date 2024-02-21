@@ -62,3 +62,10 @@ export interface verifyPhoneNumber {
 }
 
 
+export interface changePasswordDto{
+  userId?: number;
+  oldPassword: string;
+  newPassword: string;
+  confirmNewPassword: string;
+}
+

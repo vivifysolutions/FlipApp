@@ -22,9 +22,7 @@ export class MailService {
 
 
     async sendMail(content, to, context: any, contentRep: string) {
-        console.log(this.contentEnum[contentRep].template)
         try {
-            // console.log(this.contentEnum[content].template)
             this.logger.log(`Sending email to ${to} with the content ${content}`);
 
             const html = pug.renderFile(process.cwd() +

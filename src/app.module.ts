@@ -10,34 +10,41 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UtilitiesModule } from './utilities/utilities.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { PugAdapter } from '@nestjs-modules/mailer/dist/adapters/pug.adapter';
+import { ActivityModule } from './activity/activity.module';
+import { ConnectionsModule } from './connections/connections.module';
+import { ChatModule } from './chat/chat.module';
+import { ChatGateWay } from './chat/chat.gateway';
+
 
 @Module({
-  imports: [ ConfigModule.forRoot({isGlobal:true}), 
-    MailerModule.forRootAsync({
-      imports:[ConfigModule],
-      useFactory: (config: ConfigService) => ({
-        transport:{
-          host: config.get('SES_HOST'),
-          port: config.get('SES_PORT'),
-          ignoreTLS: false,
-          secure: false,
-          auth:{
-            user: config.get('SES_SMTP_USERNAME'),
-            pass: config.get('SES_SMTP_PASSWORD')
-          }
-        },
-        preview: false,
-        template: {
-          dir: process.cwd() + '/templates',
-          adapter: new PugAdapter(),
-          options:{
-            strict: true,
-          }
+  imports: [ConfigModule.forRoot({ isGlobal: true }),
+  MailerModule.forRootAsync({
+    imports: [ConfigModule],
+    useFactory: (config: ConfigService) => ({
+      transport: {
+        host: config.get('SES_HOST'),
+        port: config.get('SES_PORT'),
+        ignoreTLS: false,
+        secure: false,
+        auth: {
+          user: config.get('SES_SMTP_USERNAME'),
+          pass: config.get('SES_SMTP_PASSWORD')
         }
-      }),
-      inject: [ConfigService]
-    }) , AuthModule, UserModule, FacilityModule, EventModule, PrismaModule, UtilitiesModule],
+      },
+      preview: false,
+      template: {
+        dir: process.cwd() + '/templates',
+        adapter: new PugAdapter(),
+        options: {
+          strict: true,
+        }
+      }
+    }),
+    inject: [ConfigService]
+  }), AuthModule, UserModule, FacilityModule, EventModule,
+    PrismaModule, UtilitiesModule, 
+    ActivityModule, ConnectionsModule, ChatModule],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService,],
 })
-export class AppModule {}
+export class AppModule { }

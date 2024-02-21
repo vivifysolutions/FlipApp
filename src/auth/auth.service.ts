@@ -8,7 +8,7 @@ import {
     ForgotPasswordDto,
     LoginDto,
     RegisterDto,
-    verifyPhoneNumber,
+    changePasswordDto
 } from './dto/registerDto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as argon2 from 'argon2'
@@ -27,7 +27,7 @@ export class AuthService {
     // normal way to register  user 
     async signUp(registerDto: RegisterDto) {
         // generate hashed password 
-        if(registerDto.password !== registerDto.confirm_password){
+        if (registerDto.password !== registerDto.confirm_password) {
             throw new HttpException('Password mismatch!', HttpStatus.BAD_REQUEST)
 
         }
@@ -78,16 +78,27 @@ export class AuthService {
     async signIn(loginDto: LoginDto) {
         const { email, password } = loginDto;
         // check if the user exists 
-        const user = await this.prismaService.user.findFirst({
+        let user = await this.prismaService.user.findFirst({
             where: {
                 email: email
             }
         })
         if (!user) throw new ForbiddenException("Invalid credentials")
+        const useractivities = await this.prismaService.userActivity.findMany({
+            where: {
+                userId: user.id
+            }
+        })
         const passwordMatch = await argon2.verify(user.password, password)
         if (!passwordMatch) throw new ForbiddenException("Invalid credentials")
 
-        return this.utilityService.signPayload(user)
+        const modifiedUser = {
+            ...user,
+            activities: useractivities
+        }
+
+
+        return this.utilityService.signPayload(modifiedUser)
 
     }
 
@@ -118,8 +129,10 @@ export class AuthService {
             where: {
                 otpPhone: otp,
                 userId: userId,
+                isOtpPhoneUsed: false
             }
         })
+
         if (otpv.otpPhone === otp) {
             return await this.prismaService.user.update({
                 where: {
@@ -131,11 +144,7 @@ export class AuthService {
             })
         }
         else {
-
             throw new HttpException('Token Expired', HttpStatus.NOT_FOUND)
-
-
-
         }
     }
 
@@ -147,6 +156,8 @@ export class AuthService {
                 where: {
                     otpEmail: otp,
                     userId: userId,
+                    isOtpEmailUsed: false
+
                 }
             })
             if (otpv.otpEmail === otp) {
@@ -169,11 +180,37 @@ export class AuthService {
     }
 
 
-    changePassword() {
-
+    async changePassword(payload:changePasswordDto) {
+        try {
+            const getUser = await this.prismaService.user.findFirst({
+                where: {
+                    id: payload.userId,
+                }
+            })
+            const decryptedPassword = await argon2.verify(getUser.password, payload.oldPassword); 
+            if(!decryptedPassword){
+                throw new HttpException('Your old password is incorrect', HttpStatus.NO_CONTENT)
+            }
+            
+            if(!getUser){
+                throw new HttpException('User does not Exist', HttpStatus.NO_CONTENT)
+            }
+            const decNewPassword = await argon2.hash(payload.newPassword);
+            await this.prismaService.user.update({
+                data:{
+                    password: decNewPassword,
+                },
+                where:{
+                    id: payload.userId,
+                }
+            })
+            return this.utilityService.dataReponseObject("Password updated Successfully", 200);
+        } catch (error) {
+            throw new HttpException('An Error Occured', HttpStatus.BAD_REQUEST)
+        }
 
     }
- 
+
 
     // end of forgot password  funtion 
 }

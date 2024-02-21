@@ -23,7 +23,7 @@ model User {
   username                 String?        @unique
   email                    String         @unique
   is_email_verified        Boolean        @default(false)
-  phonenumber              String?
+  phonenumber              String?        @unique
   is_phone_number_verified Boolean        @default(false)
   bio                      String?
   password                 String?
@@ -35,13 +35,16 @@ model User {
   location                 Json?
   above_18                 Boolean        @default(false)
   accept_terms             Boolean        @default(false)
-  connections              Connection[]
+  connectionsSent          Connection[]   @relation("SentConnections")
+  connectionsReceived      Connection[]   @relation("ReceivedConnections")
   activities               UserActivity[]
   events                   Event[]
   createdAt                DateTime       @default(now())
   updatedAt                DateTime?      @updatedAt
   role                     Role           @default(USER)
   otp                      Otp?
+  messagesSent   Chat[]  @relation("messagesSent")
+  messagesReceived   Chat[]  @relation("messagesReceived")
 
   // for me to have userID in the eventattendee table it seems I need to add this field?
   eventAttendees EventAttendee[]
@@ -59,22 +62,11 @@ enum Role {
 model Otp {
   id       Int  @id @default(autoincrement())
   otpPhone Int?
+  isOtpPhoneUsed Boolean @default(false)
   otpEmail Int?
-  user     User @relation(fields: [userId], references: [id])
+  isOtpEmailUsed Boolean @default(false)
+  user     User @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId   Int  @unique
-}
-
-model Events {
-  id          Int      @id @default(autoincrement())
-  title       String
-  description String
-  location    String
-  date        DateTime
-  startTime   DateTime
-  endTime     DateTime
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  userId      Int
 }
 
 model Location {
@@ -84,32 +76,37 @@ model Location {
 }
 
 model Connection {
-  id              Int   @id @default(autoincrement())
-  status Boolean @default(false)
-  connectedUser   User? @relation(fields: [connectedUserId], references: [id])
-  connectedUserId Int?
+  id              Int     @id @default(autoincrement())
+  status          Boolean @default(false)
+  sendingUser     User    @relation("SentConnections", fields: [sendingUserId], references: [id])
+  sendingUserId   Int
+  receivingUser   User    @relation("ReceivedConnections", fields: [receivingUserId], references: [id])
+  receivingUserId Int
 }
 
 model UserActivity {
-  id       Int        @id @default(autoincrement())
-  activity_name String
-  skillLevel  SkillLevel   @default(Newbie)
-  userId   Int
-  user     User       @relation(fields: [userId], references: [id])
+  id            Int        @id @default(autoincrement())
+  activity_id   Int
+  activity_name String     @default(" ")
+  activity      Activity   @relation(fields: [activity_id], references: [id], onDelete: Cascade)
+  skillLevel    SkillLevel @default(Newbie)
+  playStyle     playStyle  @default(Casual)
+  userId        Int
+  user          User       @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
-  // nature   String?
-  
+
+// nature   String?
 
 model Activity {
-  id           Int          @id @default(autoincrement())
-  name         String
-  // skillLevel  SkillLevel   @default(Newbie)
-  // useractivityId   Int
-  // useractivity UserActivity @relation(fields: [useractivityId], references: [id])
+  id   Int    @id @default(autoincrement())
+  name String
 
-  // natures     String[]
+  UserActivity UserActivity[]
+}
 
-  // defining the relationship between the activity and the user
+enum playStyle {
+  Competitive
+  Casual
 }
 
 model Event {
@@ -117,24 +114,36 @@ model Event {
   title       String?
   description String?
   status      String?
+  flag        flag?           @default(Public)
   Date        DateTime?
+  isPublic Boolean @default(false)
   startTime   DateTime?
   endTime     DateTime?
   location    String?
   attendees   EventAttendee[]
 
-  user   User? @relation(fields: [hostId], references: [id])
+  user   User? @relation(fields: [hostId], references: [id], onDelete: Cascade)
   hostId Int?
 }
 
-model EventAttendee {
-  id     Int     @id @default(autoincrement())
-  status String?
+enum flag {
+  Public
+  Private
+}
 
-  userId  Int?
-  eventId Int?
-  event   Event? @relation(fields: [eventId], references: [id])
-  user    User?  @relation(fields: [userId], references: [id])
+model EventAttendee {
+  id     Int                 @id @default(autoincrement())
+  status EventAttendeeStatus @default(Unregistered)
+
+  attendeeId Int?
+  eventId    Int?
+  event      Event? @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user       User?  @relation(fields: [attendeeId], references: [id], onDelete: Cascade)
+}
+
+enum EventAttendeeStatus {
+  Unregistered
+  Registered
 }
 
 // end of schema creation 
@@ -145,4 +154,17 @@ enum SkillLevel {
   Intermediate_level
   Beginner_level
   Newbie
+}
+ 
+
+// models relating to chats  
+model Chat{
+  id Int @id @default(autoincrement())
+  date DateTime @default(now())
+  sender User @relation("messagesSent",fields: [senderId], references: [id], onDelete: Cascade)
+  senderId Int 
+  receiver User @relation("messagesReceived",fields: [receiverId], references: [id], onDelete: Cascade)
+  receiverId Int 
+  content String 
+  isRead Boolean @default(false)
 }
