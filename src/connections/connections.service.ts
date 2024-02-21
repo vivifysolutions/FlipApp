@@ -210,18 +210,13 @@ export class ConnectionsService {
                 const activityId = activity.activity_id
                 const distance = this.caluculateDistance(getUser.location['lat'], getUser.location['long'], gottenUser.location['lat'], gottenUser.location['long'])
                 if(distance <= 15){
-                    
                 const count = getUser.activities.filter((activity) => activity.activity_id === activityId).length
                 if (count > 0) {
                     matchingActivitiesCounts.set(gottenUser.id, (matchingActivitiesCounts.get(gottenUser.id) || 0) + 1)
                 }
-                }
-            
-                
+                }  
             }))
             const sortedIds = Array.from(matchingActivitiesCounts.entries()).sort((a, b) => b[1] - a[1]).map(entry => entry[0])
-            console.log(matchingActivitiesCounts)
-            console.log(sortedIds)
             const suggestedConnections = await Promise.all(sortedIds.map(userId => this.prisma.user.findFirst({
                 where: {
                     id: userId
@@ -239,10 +234,6 @@ export class ConnectionsService {
             return new HttpException(error, HttpStatus.BAD_REQUEST)
         }
     }
-
-
-
-
 
     // algorithm to calculate the distance between user 
     caluculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {

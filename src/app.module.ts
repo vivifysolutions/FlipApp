@@ -14,6 +14,7 @@ import { ActivityModule } from './activity/activity.module';
 import { ConnectionsModule } from './connections/connections.module';
 import { ChatModule } from './chat/chat.module';
 import { ChatGateWay } from './chat/chat.gateway';
+import { CommunityPostModule } from './community-post/community-post.module';
 
 
 @Module({
@@ -43,7 +44,7 @@ import { ChatGateWay } from './chat/chat.gateway';
     inject: [ConfigService]
   }), AuthModule, UserModule, FacilityModule, EventModule,
     PrismaModule, UtilitiesModule, 
-    ActivityModule, ConnectionsModule, ChatModule],
+    ActivityModule, ConnectionsModule, ChatModule, CommunityPostModule],
   controllers: [AppController],
   providers: [AppService,],
 })
