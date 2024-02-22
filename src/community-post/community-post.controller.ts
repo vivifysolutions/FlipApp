@@ -16,7 +16,6 @@ import { CommunityPostDto } from './Dto/communityPostDto';
 @Controller('community-post')
 export class CommunityPostController {
     constructor(private communitPostService:CommunityPostService){} 
-
     /**
      * 
      * User create Post

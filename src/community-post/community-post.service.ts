@@ -7,8 +7,6 @@ import { CommunityPostDto } from './Dto/communityPostDto';
 @Injectable()
 export class CommunityPostService {
     constructor(private prisma:PrismaService, private util:UtilitiesService){}
-
-    
     // createPost 
     async CreateCommunityPost(userPk:number, payload:CommunityPostDto){ 
         try {
@@ -47,7 +45,6 @@ export class CommunityPostService {
             return new HttpException(error, HttpStatus.BAD_REQUEST)
         }
     }
-
     // get all users posts 
     async getAllUsersPosts(userId:number){
         try {
