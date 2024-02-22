@@ -1,6 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UtilitiesService } from 'src/utilities/utilities.service';
+import { ConnecttionFilter } from './Dto/connectionFilterDto';
 
 @Injectable()
 export class ConnectionsService {
@@ -72,8 +73,18 @@ export class ConnectionsService {
                             bio: true,
                             events: true,
                         }
-                    }
-                }
+                    },
+                    receivingUser:{
+                        select:{
+                            firstName: true,
+                            lastName: true,
+                            username: true,
+                            photoUrl: true,
+                            activities: true,
+                            bio: true,
+                            events: true,
+                        }
+                    }}
             });
 
             (await connections).forEach(conn => delete conn.receivingUserId)
@@ -226,7 +237,16 @@ export class ConnectionsService {
                     firstName: true,
                     lastName: true,
                     username: true,
-                    photoUrl: true
+                    photoUrl: true,
+                    location:true,
+                    activities: {
+                        select:{
+                            id: true,
+                            activity_name: true,
+                            skillLevel: true,
+                            playStyle: true,
+                        }
+                    }
                 }
             })))
             return suggestedConnections
