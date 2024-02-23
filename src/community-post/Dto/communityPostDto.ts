@@ -10,4 +10,5 @@ export class CommunityPostDto {
   time: string;
   activity: string;
   postId: number;
+  location: string;
 }

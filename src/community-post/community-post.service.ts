@@ -17,7 +17,8 @@ export class CommunityPostService {
                     description:payload.description,
                     date:payload.date,
                     time:payload.time,
-                    activity: payload.activity
+                    activity: payload.activity,
+                    location:payload.location
                 },
             })
         } catch (error) {
@@ -35,7 +36,8 @@ export class CommunityPostService {
                     description:payload.description,
                     date:payload.date,
                     time:payload.time,
-                    activity: payload.activity
+                    activity: payload.activity,
+                    location:payload.location
                 },
                 where:{
                     id:+payload.postId
@@ -57,7 +59,8 @@ export class CommunityPostService {
                     title: true,
                     description: true,
                     date: true,
-                    time: true
+                    time: true,
+                    location: true,
                 }
             }) 
             if(allPosts.length > 0) return allPosts
@@ -65,6 +68,25 @@ export class CommunityPostService {
         } catch (error) {
             return new HttpException("Couldn't retrieve your posts,Please try again", HttpStatus.BAD_REQUEST)
         }
+    }
+
+    // get the total Posts 
+    async getTotalPosts(userId:number){
+        const allPosts = await this.prisma.post.findMany({
+            where:{
+                NOT:[{userId:userId}]
+            },
+            select:{
+                id:true,
+                title:true,
+                description:true,
+                date:true,
+                time:true,
+                activity:true,
+                location:true
+            }
+        })
+        return allPosts
     }
     // deletePost
     async deletePost(userId:number, postId:number){

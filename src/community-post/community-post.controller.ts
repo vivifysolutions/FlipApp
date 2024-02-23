@@ -3,9 +3,12 @@ import {
   Controller,
   Delete,
   Get,
+  HttpException,
+  HttpStatus,
   Param,
   Post,
   Put,
+  Query,
   Request,
   UseGuards,
 } from '@nestjs/common';
@@ -15,14 +18,14 @@ import { CommunityPostDto } from './Dto/communityPostDto';
 
 @Controller('community-post')
 export class CommunityPostController {
-    constructor(private communitPostService:CommunityPostService){} 
+    constructor(private communitPostService: CommunityPostService) { }
     /**
      * 
      * User create Post
      */
     @UseGuards(AuthGuard)
     @Post('post')
-    CreateCommunityPost(@Request() req, @Body() body:CommunityPostDto){
+    CreateCommunityPost(@Request() req, @Body() body: CommunityPostDto) {
         const user = req.user;
         return this.communitPostService.CreateCommunityPost(+user.id, body)
     }
@@ -32,11 +35,11 @@ export class CommunityPostController {
      */
     @UseGuards(AuthGuard)
     @Put('updatePost/:postId')
-    UpdateCommunityPost(@Param('postId') postId:number, @Request() req, @Body() body:CommunityPostDto){
+    UpdateCommunityPost(@Param('postId') postId: number, @Request() req, @Body() body: CommunityPostDto) {
         const user = req.user;
         const payload = {
             ...body,
-            postId:postId
+            postId: postId
         }
         return this.communitPostService.UpdateCommunityPost(user.id, payload)
     }
@@ -45,10 +48,33 @@ export class CommunityPostController {
      * get all users post
      */
     @UseGuards(AuthGuard)
-    @Get("allPosts")
-    getAllUsersPosts(@Request() req){
+    @Get("alluserPosts")
+    getAllUsersPosts(@Request() req) {
         const id = req.user.id;
         return this.communitPostService.getAllUsersPosts(+id);
+    }
+
+    /**
+     * get all posts
+     */
+    @UseGuards(AuthGuard)
+    @Get("allPosts")
+    async getTotalPosts(@Request() req, @Query('location') location: string, @Query('activity') activity: string) {
+        try {
+            const id = req.user.id;
+            const query = req.query;
+            let data = await this.communitPostService.getTotalPosts(+id);
+            if (query.location) {
+                data = data.filter(post => post.location.toLowerCase().includes(query.location.toLowerCase()));
+            }
+            if (query.activity) {
+                data = data.filter(post => post.activity.toLowerCase().includes(query.activity.toLowerCase()));
+            }
+            return data
+        } catch (error) {
+            return new HttpException(error, HttpStatus.BAD_REQUEST)
+        }
+
     }
 
     /**
@@ -56,7 +82,7 @@ export class CommunityPostController {
      */
     @UseGuards(AuthGuard)
     @Delete('deletePost/:postId')
-    deletePost(@Param('postId') postId:number, @Request() req){
+    deletePost(@Param('postId') postId: number, @Request() req) {
         const user = req.user
         return this.communitPostService.deletePost(user.id, postId)
     }
