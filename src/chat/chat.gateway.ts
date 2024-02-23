@@ -30,7 +30,6 @@ export class ChatGateWay implements OnGatewayConnection, OnGatewayDisconnect{
 
     @SubscribeMessage('sendMessage')
     async handlechat(client:any, payload:any){
-      console.log(payload)
       this.logger.log("hiii ni dnjfsfjsdbfh",client.id)
         this.server.emit('newMessage', payload);
     }
