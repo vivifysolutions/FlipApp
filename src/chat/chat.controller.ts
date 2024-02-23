@@ -73,7 +73,6 @@ export class ChatController {
     updateMessage(@Request() req, @Param("messageId") messageId:number){
         const user = req.user;
         const content = req.body['content'];
-        console.log(content)
         return this.chatService.updateMessage(+messageId, +user.id, content)
     }
 

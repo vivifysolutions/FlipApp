@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Twilio } from "twilio";
 import { SmsDto } from "./dto/sms-dto";
-import { Console } from "console";
+;
 
 @Injectable()
 export class TwilioService {

@@ -3,12 +3,12 @@ import { IsNotEmpty } from 'class-validator';
 export interface eventDto {
   id?: number;
   title: string;
-  Date: Date;
+  Date: string;
   description?: string;
   status?: string;
   hostId: number;
-  startTime: Date;
-  endTime: Date;
+  startTime: string;
+  endTime: string;
   attendees?: evenAttendee[];
   location: string;
 } 
@@ -29,15 +29,15 @@ export interface eventDto {
     @IsNotEmpty()
     title: string;
     @IsNotEmpty()
-    Date: Date;
+    Date: string;
     @IsNotEmpty()
     description?: string;
     status?: string;
     hostId: number;
     @IsNotEmpty()
-    startTime: Date;
+    startTime: string;
     @IsNotEmpty()
-    endTime: Date;
+    endTime: string;
     attendees?: evenAttendee[];
     @IsNotEmpty()
     location: string;

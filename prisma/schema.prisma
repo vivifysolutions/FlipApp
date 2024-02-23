@@ -45,11 +45,9 @@ model User {
   otp                      Otp?
   messagesSent   Chat[]  @relation("messagesSent")
   messagesReceived   Chat[]  @relation("messagesReceived")
+  eventAttendees EventAttendee[] 
+  posts Post[]
 
-  // for me to have userID in the eventattendee table it seems I need to add this field?
-  eventAttendees EventAttendee[]
-
-  // 
   @@map("users")
 }
 
@@ -114,11 +112,10 @@ model Event {
   title       String?
   description String?
   status      String?
-  flag        flag?           @default(Public)
-  Date        DateTime?
+  Date        String?
   isPublic Boolean @default(false)
-  startTime   DateTime?
-  endTime     DateTime?
+  startTime   String?
+  endTime     String?
   location    String?
   attendees   EventAttendee[]
 
@@ -167,4 +164,17 @@ model Chat{
   receiverId Int 
   content String 
   isRead Boolean @default(false)
+} 
+
+model Post{
+  id Int @id @default(autoincrement()) 
+  title String 
+  description String 
+  date String?
+  time String?
+  activity String?
+  location String?
+  userId Int 
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
+

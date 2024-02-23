@@ -9,6 +9,7 @@ import {
   Request,
   Put,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { EventService } from './event.service';
 import { EventCreateDto, eventDto, registerEvent } from './dto/eventDto';
@@ -70,5 +71,21 @@ export class EventController {
         }
 
         return this.eventService.userRegisterForEvent(payload)
+    }
+
+    // get all events 
+    @UseGuards(AuthGuard)
+    @Get('allevents')
+    async getAllEvents(@Request() req, @Qguery('title') title:string, @Query('location') location:string ){
+        const hostId = req.user.id;
+        const query = req.query
+        let data = await this.eventService.getAllEvents(hostId);
+        if(query.location){
+            data = data.filter(event => event.location.toLowerCase().includes(query.location.toLowerCase()))
+        }
+        if(query.title){
+            data = data.filter(event => event.title.toLowerCase().includes(query.title.toLowerCase()))
+        }
+        return data;
     }
 }

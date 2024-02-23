@@ -113,6 +113,17 @@ export class EventService {
             throw new Error(error.message)
         }
     }
+
+    // get all the events available 
+    async getAllEvents(hostId: number){
+        return this.prismaService.event.findMany({
+            where:{
+                NOT:{
+                    hostId: hostId
+                }
+            }
+        })
+    }
      
 }
 
