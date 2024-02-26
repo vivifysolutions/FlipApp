@@ -32,7 +32,7 @@ export class ChatController {
             receiverId: +receiverId
         }
 
-        return this.chatService.sendMessageToUser(payload);
+        return this.chatService.saveMessage(payload);
     }
 
     /**

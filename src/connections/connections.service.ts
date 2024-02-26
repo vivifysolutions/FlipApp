@@ -20,7 +20,7 @@ export class ConnectionsService {
             // calculate distance 
             const distance = this.caluculateDistance(senderlocation['lat'], senderlocation['long'], receiverlocation['lat'], receiverlocation['long'])
             if (distance > 50) {
-                return new HttpException("You exceeded the distance", HttpStatus.FORBIDDEN)
+                return this.util.apiResponse("Success", 200, "You exceeded the distance", [])
             }
             // check if user is already connected
             const connectedUser = await this.prisma.connection.findFirst({
@@ -29,7 +29,7 @@ export class ConnectionsService {
                     receivingUserId: +receivingUser.id
                 }
             })
-            if (connectedUser) return this.util.dataReponseObject('Already sent a connection Request', 200)
+            if (connectedUser) return this.util.apiResponse("Success", 200, "Already sent a connection Request", [])
 
             await this.prisma.connection.create({
                 data: {
@@ -38,8 +38,7 @@ export class ConnectionsService {
                 }
             })
 
-            return this.util.dataReponseObject("Connection request sent", 200)
-
+            return  this.util.apiResponse("Success", 200, "Connection request sent", [])
         } catch (error) {
             throw new Error(error.message)
         }
@@ -89,7 +88,7 @@ export class ConnectionsService {
 
             (await connections).forEach(conn => delete conn.receivingUserId)
 
-            return connections;
+            return this.util.apiResponse("Success", 200, "All user Connections", connections as any);
         } catch (error) {
             throw new Error(error.message);
         }
@@ -114,7 +113,7 @@ export class ConnectionsService {
 
                 }
             })
-            return receivedConnections;
+             return this.util.apiResponse("Success", 200, "Message Sent", receivedConnections  as any)
 
         } catch (error) {
             throw new Error(error);
@@ -141,7 +140,7 @@ export class ConnectionsService {
                     }
                 }
             })
-            return this.util.dataReponseObject(`You are now connected with ${accpetedConnection.sendingUser.firstName}`, 200)
+            return this.util.apiResponse("Success", 200, `You are now connected with ${accpetedConnection.sendingUser.firstName}`, [])
         } catch (error) {
             throw new Error(error.message)
         }
@@ -156,7 +155,7 @@ export class ConnectionsService {
                     receivingUserId: userId
                 }
             })
-            return this.util.dataReponseObject("You have revoked the connection", 200);
+            return this.util.apiResponse("Success", 200, "You have revoked the connection", [])
         } catch (error) {
             throw new Error(error.message)
         }
@@ -176,7 +175,7 @@ export class ConnectionsService {
                 isConfigured, geohashLocation, above_18,
                 accept_terms, createdAt, updatedAt, role, gender, ...connectionTrimmed } = connectionProfile;
 
-            return connectionTrimmed;
+            return this.util.apiResponse("Success", 200, "Connection profile", connectionTrimmed  as any);
         } catch (error) {
             throw new Error(error.message)
         }

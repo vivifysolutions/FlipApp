@@ -27,6 +27,10 @@ export class UtilitiesService {
 
     dataReponseObject(message: string, statusCode: number){
         return {data: {message: message, status: statusCode}}
+    } 
+
+    apiResponse(status:string, statusCode:number, message:string,data:any[] ){
+        return {status, statusCode, message, data}
     }
 
 }

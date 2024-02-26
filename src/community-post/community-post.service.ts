@@ -10,7 +10,7 @@ export class CommunityPostService {
     // createPost 
     async CreateCommunityPost(userPk:number, payload:CommunityPostDto){ 
         try {
-            return await this.prisma.post.create({
+            const post = await this.prisma.post.create({
                 data:{
                     userId:userPk,
                     title:payload.title,
@@ -21,6 +21,7 @@ export class CommunityPostService {
                     location:payload.location
                 },
             })
+            return this.util.apiResponse("Success", 200, "Post created Successfully", post as any);
         } catch (error) {
             return new HttpException(error, HttpStatus.BAD_REQUEST)
         }
@@ -30,7 +31,7 @@ export class CommunityPostService {
         try {
             const getPost = await this.prisma.post.findFirst({where:{id:+payload.postId, userId:+userPk}})
             if(!getPost) return new HttpException("No post with that id Found", HttpStatus.NOT_FOUND)
-            return await this.prisma.post.update({
+            const post = await this.prisma.post.update({
                 data:{
                     title:payload.title,
                     description:payload.description,
@@ -43,6 +44,7 @@ export class CommunityPostService {
                     id:+payload.postId
                 }
             })
+            return this.util.apiResponse("Success", 200, "Message Updated Successfully", post as any)
         } catch (error) {
             return new HttpException(error, HttpStatus.BAD_REQUEST)
         }
@@ -64,7 +66,7 @@ export class CommunityPostService {
                 }
             }) 
             if(allPosts.length > 0) return allPosts
-            return this.util.dataReponseObject("No posts founs", 204)
+            return this.util.apiResponse("Success", 200, "No posts found", [])
         } catch (error) {
             return new HttpException("Couldn't retrieve your posts,Please try again", HttpStatus.BAD_REQUEST)
         }
@@ -94,7 +96,7 @@ export class CommunityPostService {
         const getPost = await this.prisma.post.findFirst({where:{id:+postId, userId:+userId}})
         if(!getPost) return new HttpException("No post with that id Found", HttpStatus.NOT_FOUND)
         await this.prisma.post.delete({where:{id:+postId, userId:+userId}})
-        return this.util.dataReponseObject("Post deleted successfully", 200)
+        return this.util.apiResponse("Success", 200, "Post deleted Successfully", [])
        } catch (error) {
             return new HttpException("Error deleting post", HttpStatus.BAD_REQUEST)
        }

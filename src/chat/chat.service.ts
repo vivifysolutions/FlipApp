@@ -33,13 +33,14 @@ export class ChatService {
                 }
             })
             if (!checkIfUserAreConnected) return new HttpException("You must be connected", HttpStatus.FORBIDDEN)
-            return await this.prisma.chat.create({
+            const mess_age =  await this.prisma.chat.create({
                 data: {
                     senderId: message.senderId,
                     receiverId: message.receiverId,
                     content: message.content
                 }
             })
+            return this.util.apiResponse("Success", 200, "Message Sent", mess_age as any)
 
         } catch (error) {
             return new HttpException(error.message, HttpStatus.BAD_REQUEST)
@@ -48,7 +49,7 @@ export class ChatService {
     // user get all messages 
     async getUserMessages(userId: number) {
        try {
-        return await this.prisma.chat.findMany({
+        const messagesRetrieved = await this.prisma.chat.findMany({
             where: {
                 OR: [
                     { senderId: userId },
@@ -69,6 +70,7 @@ export class ChatService {
                 date: 'desc',
             }
         })
+        return this.util.apiResponse("Success", 200, "All your messages", messagesRetrieved)
        } catch (error) {
             return new HttpException(error, HttpStatus.BAD_REQUEST);
        }
@@ -92,9 +94,9 @@ export class ChatService {
             where: { receiverId:userId, isRead:false },
         })
         if(unreadMessages.length <= 0){
-            return this.util.dataReponseObject("No unread Messages found", 204)
+            return this.util.apiResponse("Success", 200, "No unread Messafges", [])
         }
-        return unreadMessages
+        return this.util.apiResponse("Success", 200, "Message Sent", unreadMessages)
     }
 
     // update message 
@@ -107,7 +109,7 @@ export class ChatService {
                 }
             })
             if(!getMessage){
-                return new HttpException("You can't Update the Message", HttpStatus.FORBIDDEN)
+                return this.util.apiResponse("Forbidden", 403, "You can't edit the message", [])
             }
             const updatedMessage = await this.prisma.chat.update({
                 data:{
@@ -118,7 +120,7 @@ export class ChatService {
                     senderId: senderId
                 }
             })
-            return updatedMessage; 
+            return this.util.apiResponse("Success", 200, "Message updated", updatedMessage as any) 
         } catch (error) {
             return new HttpException("Error updating message", HttpStatus.BAD_REQUEST)
         }
@@ -126,12 +128,16 @@ export class ChatService {
 
     // delete message 
     async deleteMessage(messageId:number){
-        await this.prisma.chat.delete({
-            where:{
-                id:messageId
-            }
-        })
-        return this.util.dataReponseObject("Message deleted successfully", 204)
+        try {
+            await this.prisma.chat.delete({
+                where:{
+                    id:messageId
+                }
+            })
+            return this.util.apiResponse("Success", 200, "Message deleted", [])
+        } catch (error) {
+            return new HttpException(error, HttpStatus.BAD_REQUEST)
+        }
     }
 
 }

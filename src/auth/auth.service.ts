@@ -63,7 +63,8 @@ export class AuthService {
                 }
             })
             delete user.password;
-            return this.utilityService.signPayload(user);
+            const accessToken = await this.utilityService.signPayload(user)
+            return this.utilityService.apiResponse('success', 200, 'User created successfully', [accessToken]);
         } catch (error) {
             if (error instanceof PrismaClientKnownRequestError) {
                 if (error.code === 'P2002') {
@@ -97,8 +98,10 @@ export class AuthService {
             activities: useractivities
         }
 
+        const accessToken = await this.utilityService.signPayload(modifiedUser)
 
-        return this.utilityService.signPayload(modifiedUser)
+
+        return this.utilityService.apiResponse("Success", 200, "User logged in successfully", [accessToken])
 
     }
 
@@ -120,11 +123,12 @@ export class AuthService {
                 email: forgotPasswordDto.email
             }
         })
-        if (!user) throw new ForbiddenException("Please recheck your email address");
+        if (!user) return this.utilityService.apiResponse("Forbidden", 403, "Please recheck your password", []) ;
     }
 
     // function to verify phone number 
     async verifyPhonNumber(otp: number, userId: number) {
+      try {
         const otpv = await this.prismaService.otp.findFirst({
             where: {
                 otpPhone: otp,
@@ -144,8 +148,11 @@ export class AuthService {
             })
         }
         else {
-            throw new HttpException('Token Expired', HttpStatus.NOT_FOUND)
+            return this.utilityService.apiResponse("Not Found", 504, "Token Expired", [] )
         }
+      } catch (error) {
+        return this.utilityService.apiResponse("Not Found", 504,  error.message,[] )
+      }
     }
 
     // FUNCTION TO VERIFY EMAIL ADDRESS 
@@ -204,7 +211,7 @@ export class AuthService {
                     id: payload.userId,
                 }
             })
-            return this.utilityService.dataReponseObject("Password updated Successfully", 200);
+            return this.utilityService.apiResponse('Success', 200, "Password updated successfully",[])
         } catch (error) {
             throw new HttpException('An Error Occured', HttpStatus.BAD_REQUEST)
         }

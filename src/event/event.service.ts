@@ -17,7 +17,7 @@ export class EventService {
                     hostId: userId,
                 }
             })
-            return events.length > 0 ? events : this.util.dataReponseObject("You have no events", 200)
+            return events.length > 0 ? this.util.apiResponse("Success", 200, "User events", events  as any) : this.util.apiResponse("Success", 200, "You have no events", [])
         } catch (error) {
             throw new Error(error)
         }
@@ -26,7 +26,7 @@ export class EventService {
     // create an event 
     async userCreateEvent(eventInfo: eventDto) {
         try {
-            await this.prismaService.event.create({
+           const receivedConnections =  await this.prismaService.event.create({
                 data: {
                     title: eventInfo.title,
                     description: eventInfo.description,
@@ -39,7 +39,7 @@ export class EventService {
                 }
             })
 
-            return this.util.dataReponseObject("Event Created Successfully", 200)
+            return this.util.apiResponse("Success", 200, "Event Created Successfully", receivedConnections  as any)
 
         } catch (error) {
             throw new Error(error)
@@ -54,11 +54,11 @@ export class EventService {
                     id: eventInfo.id,
                 }
             })
-            if(!event) return new HttpException("Event Doesn't exist", HttpStatus.NOT_FOUND)
+            if(!event) return this.util.apiResponse("Event not Found", 504, "Event Not Found", [])
 
-            if(event.hostId !== eventInfo.hostId) return new HttpException("You can only update your events", HttpStatus.UNAUTHORIZED)
+            if(event.hostId !== eventInfo.hostId) return this.util.apiResponse("Forbiden", 503, "You can only update your event", [])
         
-            await this.prismaService.event.updateMany({
+            const updatedPost = await this.prismaService.event.updateMany({
                 data:{
                     title: eventInfo.title,
                     description: eventInfo.description,
@@ -73,7 +73,7 @@ export class EventService {
                     hostId: eventInfo.hostId,
                 }
                }) 
-               return this.util.dataReponseObject("Event Updated Successfully", 200)
+               return this.util.apiResponse("Success", 200, "Event updated Successfully", updatedPost  as any)
             
         } catch (error) {
             throw new Error(error.message)
@@ -90,7 +90,7 @@ export class EventService {
                 }
             })
 
-            return this.util.dataReponseObject("Event Deleted Successfully", 204)
+            return this.util.apiResponse("Success", 200, "Event develted Successful", [])
         } catch (error) {
             throw new Error(error.message)
         }
@@ -108,7 +108,7 @@ export class EventService {
                 }
             })
 
-            return this.util.dataReponseObject("Registered for the event Successfully", 200)
+            return this.util.apiResponse("Success", 200, "Registered for the event Successfully", [])
         } catch (error) {
             throw new Error(error.message)
         }
