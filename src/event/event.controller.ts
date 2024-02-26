@@ -76,7 +76,7 @@ export class EventController {
     // get all events 
     @UseGuards(AuthGuard)
     @Get('allevents')
-    async getAllEvents(@Request() req, @Qguery('title') title:string, @Query('location') location:string ){
+    async getAllEvents(@Request() req, @Query('title') title:string, @Query('location') location:string ){
         const hostId = req.user.id;
         const query = req.query
         let data = await this.eventService.getAllEvents(hostId);
